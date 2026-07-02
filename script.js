@@ -255,6 +255,15 @@ document.addEventListener('DOMContentLoaded', () => {
   authModal.addEventListener('click', (e) => {
     if (e.target === authModal) closeAuthModal();
   });
+  // Open Modal - Event Delegation
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('#btn-login-nav');
+    if (target) {
+      e.preventDefault();
+      openAuthModal();
+    }
+  });
+
   const btnAuthBack = document.getElementById('btn-auth-back');
   if (btnAuthBack) {
     btnAuthBack.addEventListener('click', closeAuthModal);
@@ -536,10 +545,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else {
       navAuthContainer.innerHTML = `<button class="btn-nav-primary" id="btn-login-nav">Sign In</button>`;
-      document.getElementById('btn-login-nav').addEventListener('click', (e) => {
-        e.preventDefault();
-        openAuthModal();
-      });
 
       navAddonsLink.style.display = 'none';
       navAdminLink.style.display = 'none';
