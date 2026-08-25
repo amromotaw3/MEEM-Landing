@@ -1,12 +1,3 @@
-// Auto-forward OAuth hash to /auth/callback if landed on homepage
-(function checkOAuthHashForward() {
-  const hash = window.location.hash;
-  if (hash && (hash.includes('access_token=') || hash.includes('error='))) {
-    const search = window.location.search || '?source=app';
-    window.location.href = window.location.origin + '/auth/callback/' + search + hash;
-  }
-})();
-
 document.addEventListener('DOMContentLoaded', () => {
   // --- Supabase Client Initialization ---
   const SUPABASE_URL = "https://vvjnkgdrhyxilnderjdy.supabase.co";
@@ -225,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'discord',
           options: {
-            redirectTo: `${window.location.origin}/auth/callback`
+            redirectTo: 'https://mediavault-five.vercel.app/auth/callback?source=web'
           }
         });
         if (error) throw error;
@@ -247,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/auth/callback`
+            redirectTo: 'https://mediavault-five.vercel.app/auth/callback?source=web'
           }
         });
         if (error) throw error;
