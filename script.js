@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'discord',
           options: {
-            redirectTo: `${window.location.origin}/auth/callback?source=web`
+            redirectTo: `${window.location.origin}/auth/callback`
           }
         });
         if (error) throw error;
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/auth/callback?source=web`
+            redirectTo: `${window.location.origin}/auth/callback`
           }
         });
         if (error) throw error;
