@@ -356,12 +356,12 @@
         return;
       }
 
-      // Format Deep Links
-      const deepLinkCallback = 'mediavault://callback' + hash;
-      const deepLinkAuth = 'mediavault://auth' + hash;
+      // Format Deep Links (supporting both meem:// and legacy mediavault:// protocols)
+      const deepLinkMeem = 'meem://callback' + hash;
+      const deepLinkMediaVault = 'mediavault://callback' + hash;
 
       // Update manual launch button link
-      manualLink.href = deepLinkCallback;
+      manualLink.href = deepLinkMeem;
 
       // 1. Attempt Iframe delivery to Local Electron API server (usually localhost:3000)
       const localServerUrl = 'http://localhost:3000/' + hash;
@@ -369,29 +369,30 @@
 
       // 2. Fallback to deep link protocol after 800ms
       setTimeout(() => {
-        statusText.innerText = "Session linked. Redirecting via deep link...";
+        statusText.innerText = "Session linked. Returning to MEEM app...";
         
-        // Quietly try to launch deep link
-        const linkElem = document.createElement('a');
-        linkElem.href = deepLinkCallback;
-        linkElem.style.display = 'none';
-        document.body.appendChild(linkElem);
-        linkElem.click();
-        document.body.removeChild(linkElem);
+        // Quietly try to launch both deep link protocols
+        [deepLinkMeem, deepLinkMediaVault].forEach((linkUrl) => {
+          const linkElem = document.createElement('a');
+          linkElem.href = linkUrl;
+          linkElem.style.display = 'none';
+          document.body.appendChild(linkElem);
+          linkElem.click();
+          document.body.removeChild(linkElem);
+        });
 
         // Update status UI
         setTimeout(() => {
-          statusText.innerText = "Securely connected. Ready to close.";
+          statusText.innerText = "Connected! You can close this browser window.";
           document.querySelector('.status-dot').style.background = '#10b981';
           document.querySelector('.status-dot').style.boxShadow = '0 0 10px #10b981';
         }, 1000);
       }, 1000);
 
-      // Support manual fallback deep links (both callback and auth formats just in case)
+      // Support manual fallback deep links
       manualLink.addEventListener('click', (e) => {
-        // Trigger secondary backup protocol just in case primary fails
         setTimeout(() => {
-          window.location.href = deepLinkAuth;
+          window.location.href = deepLinkMediaVault;
         }, 1500);
       });
     });
