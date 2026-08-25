@@ -356,7 +356,7 @@
         return;
       }
 
-      // Format Deep Links (supporting both meem:// and legacy mediavault:// protocols)
+      // Format Deep Links (support both meem:// and mediavault:// protocols)
       const deepLinkMeem = 'meem://callback' + hash;
       const deepLinkMediaVault = 'mediavault://callback' + hash;
 
@@ -367,33 +367,41 @@
       const localServerUrl = 'http://localhost:3000/' + hash;
       hiddenIframe.src = localServerUrl;
 
-      // 2. Fallback to deep link protocol after 800ms
+      // 2. Fallback to deep link protocol after 600ms
       setTimeout(() => {
-        statusText.innerText = "Session linked. Returning to MEEM app...";
+        statusText.innerText = "Session linked. Opening MEEM app...";
         
-        // Quietly try to launch both deep link protocols
-        [deepLinkMeem, deepLinkMediaVault].forEach((linkUrl) => {
-          const linkElem = document.createElement('a');
-          linkElem.href = linkUrl;
-          linkElem.style.display = 'none';
-          document.body.appendChild(linkElem);
-          linkElem.click();
-          document.body.removeChild(linkElem);
-        });
+        // Quietly try to launch meem:// protocol
+        const linkElem = document.createElement('a');
+        linkElem.href = deepLinkMeem;
+        linkElem.style.display = 'none';
+        document.body.appendChild(linkElem);
+        linkElem.click();
+        document.body.removeChild(linkElem);
+
+        // Backup try to launch mediavault:// protocol
+        setTimeout(() => {
+          const backupElem = document.createElement('a');
+          backupElem.href = deepLinkMediaVault;
+          backupElem.style.display = 'none';
+          document.body.appendChild(backupElem);
+          backupElem.click();
+          document.body.removeChild(backupElem);
+        }, 500);
 
         // Update status UI
         setTimeout(() => {
-          statusText.innerText = "Connected! You can close this browser window.";
+          statusText.innerText = "Securely connected. You can close this window now.";
           document.querySelector('.status-dot').style.background = '#10b981';
           document.querySelector('.status-dot').style.boxShadow = '0 0 10px #10b981';
-        }, 1000);
-      }, 1000);
+        }, 1200);
+      }, 600);
 
       // Support manual fallback deep links
       manualLink.addEventListener('click', (e) => {
         setTimeout(() => {
           window.location.href = deepLinkMediaVault;
-        }, 1500);
+        }, 1200);
       });
     });
   </script>
