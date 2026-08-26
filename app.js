@@ -618,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       navAuthContainer.innerHTML = `<button class="btn-nav-primary" id="btn-login-nav">Sign In</button>`;
 
-      if (navMylistLink) navMylistLink.style.display = 'none';
+      if (navMylistLink) navMylistLink.style.display = 'inline-block';
       navAddonsLink.style.display = 'none';
       navAdminLink.style.display = 'none';
     }
