@@ -1378,28 +1378,52 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- My List & Library Logic ---
   // ==========================================
   // Helper function to open IMDb page for a media item
-  function openImdbLink(row) {
-    if (!row) return;
-    let imdbId = row.imdb_id || row.imdbId;
-    if (!imdbId && row.media_id && String(row.media_id).startsWith('tt')) {
-      imdbId = row.media_id.split(':')[0];
+  async function openImdbLink(rowOrInfo) {
+    if (!rowOrInfo) return;
+    
+    let imdbId = rowOrInfo.imdb_id || rowOrInfo.imdbId;
+    let mediaId = rowOrInfo.media_id || rowOrInfo.mediaId || rowOrInfo.id || '';
+    let title = rowOrInfo.title || rowOrInfo.name || '';
+    let rawRow = rowOrInfo.raw || rowOrInfo;
+
+    if (!imdbId && mediaId && String(mediaId).startsWith('tt')) {
+      imdbId = String(mediaId).split(':')[0];
     }
-    if (!imdbId && row.item_data) {
+
+    if (!imdbId && rawRow) {
+      imdbId = rawRow.imdb_id || rawRow.imdbId;
+      if (!imdbId && rawRow.media_id && String(rawRow.media_id).startsWith('tt')) {
+        imdbId = String(rawRow.media_id).split(':')[0];
+      }
+      if (!imdbId && rawRow.item_data) {
+        try {
+          const item = typeof rawRow.item_data === 'string' ? JSON.parse(rawRow.item_data) : rawRow.item_data;
+          imdbId = item?.imdb_id || item?.imdbId || (item?.id && String(item.id).startsWith('tt') ? item.id : null);
+          title = title || item?.title || item?.name || item?.title_ar || item?.name_ar || '';
+        } catch (e) {}
+      }
+    }
+
+    // If still no imdbId but we have a mediaId (e.g. tmdb:61663 or numeric), try to fetch details from cinemeta/tmdb cache or API
+    if (!imdbId && mediaId) {
       try {
-        const item = typeof row.item_data === 'string' ? JSON.parse(row.item_data) : row.item_data;
-        imdbId = item?.imdb_id || item?.imdbId || (item?.id && String(item.id).startsWith('tt') ? item.id : null);
+        const details = await fetchItemDetails(mediaId, rowOrInfo.type || 'movie');
+        if (details?.imdb_id) imdbId = details.imdb_id;
+        if (!title) title = details?.title || '';
       } catch (e) {}
     }
-    
+
+    if (!title && rawRow) {
+      title = rawRow.title || rawRow.name || 'Untitled';
+    }
+
     if (imdbId && String(imdbId).startsWith('tt')) {
-      window.open(`https://www.imdb.com/title/${imdbId}/`, '_blank');
+      const cleanImdbId = String(imdbId).split(':')[0];
+      window.open(`https://www.imdb.com/title/${cleanImdbId}/`, '_blank');
+    } else if (title && title !== 'Untitled') {
+      window.open(`https://www.imdb.com/find/?q=${encodeURIComponent(title)}`, '_blank');
     } else {
-      const queryName = row.title || row.name || (row.item_data && (row.item_data.title || row.item_data.name)) || '';
-      if (queryName) {
-        window.open(`https://www.imdb.com/find/?q=${encodeURIComponent(queryName)}`, '_blank');
-      } else {
-        showToast('IMDb info not available for this item.', 'error');
-      }
+      showToast('IMDb page not found for this item.', 'error');
     }
   }
 
