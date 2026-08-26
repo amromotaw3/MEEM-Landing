@@ -1834,12 +1834,14 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const { data: memberRefs } = await supabaseClient
           .from('list_members')
-          .select('list_id')
+          .select('list_id, target_profile_id')
           .eq('user_id', currentUser.id)
           .eq('status', 'joined');
           
         if (memberRefs && memberRefs.length > 0) {
-          const sharedListIds = memberRefs.map(m => m.list_id);
+          const sharedListIds = memberRefs
+            .filter(m => !m.target_profile_id || !activeProfileId || m.target_profile_id === activeProfileId)
+            .map(m => m.list_id);
           const { data: fetchedShared, error: sharedError } = await supabaseClient
             .from('custom_lists')
             .select('id, list_name, theme_color, list_items(*)')
