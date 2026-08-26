@@ -1,3 +1,7 @@
+window.addEventListener('error', (event) => {
+  alert('Page JS Error: ' + event.message + '\nFile: ' + event.filename + '\nLine: ' + event.lineno);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   // --- Supabase Client Initialization ---
   const SUPABASE_URL = "https://vvjnkgdrhyxilnderjdy.supabase.co";
@@ -20,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- State Variables ---
   let currentUser = null;
   let currentUserProfile = null; // Stored from sync_user_session
+  let currentUserProfiles = []; // Profiles array
+  let activeProfileId = null; // ID of the currently selected profile
+  let activeMyListTab = 'watching'; // active tab inside my list
   let selectedAdminTab = 'users-tab';
   let activeUsers = [];
 
@@ -85,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hero = document.getElementById('hero');
     const features = document.getElementById('features');
     const addons = document.getElementById('addons-section');
+    const mylist = document.getElementById('mylist-section');
     const admin = document.getElementById('admin-panel-section');
 
     currentView = viewName;
@@ -96,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
       hero.style.display = 'block';
       features.style.display = 'block';
       addons.style.display = 'none';
+      mylist.style.display = 'none';
       admin.style.display = 'none';
       const homeLink = document.querySelector('#nav-links a[href="#hero"]');
       if (homeLink) homeLink.classList.add('active');
@@ -103,14 +112,25 @@ document.addEventListener('DOMContentLoaded', () => {
       hero.style.display = 'none';
       features.style.display = 'none';
       addons.style.display = 'block';
+      mylist.style.display = 'none';
       admin.style.display = 'none';
       const addonsLink = document.getElementById('nav-addons-link');
       if (addonsLink) addonsLink.classList.add('active');
       loadAddons();
+    } else if (viewName === 'mylist') {
+      hero.style.display = 'none';
+      features.style.display = 'none';
+      addons.style.display = 'none';
+      mylist.style.display = 'block';
+      admin.style.display = 'none';
+      const mylistLink = document.getElementById('nav-mylist-link');
+      if (mylistLink) mylistLink.classList.add('active');
+      loadMyList();
     } else if (viewName === 'admin') {
       hero.style.display = 'none';
       features.style.display = 'none';
       addons.style.display = 'none';
+      mylist.style.display = 'none';
       admin.style.display = 'block';
       const adminLink = document.getElementById('nav-admin-link');
       if (adminLink) adminLink.classList.add('active');
@@ -154,6 +174,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } else if (href === '#addons-section') {
         switchView('addons');
+      } else if (href === '#mylist-section') {
+        switchView('mylist');
       } else if (href === '#admin-panel-section') {
         switchView('admin');
       }
@@ -257,10 +279,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // Open Modal - Event Delegation
   document.addEventListener('click', (e) => {
-    const target = e.target.closest('#btn-login-nav');
-    if (target) {
-      e.preventDefault();
-      openAuthModal();
+    try {
+      const target = e.target.closest('#btn-login-nav');
+      if (target) {
+        e.preventDefault();
+        openAuthModal();
+      }
+    } catch (err) {
+      alert("Click Handler Error: " + err.message);
     }
   });
 
@@ -270,10 +296,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openAuthModal() {
-    authModal.style.display = 'flex';
-    document.body.classList.add('auth-modal-open');
-    document.body.style.overflow = 'hidden';
-    setAuthMode('login');
+    try {
+      if (!authModal) {
+        alert("Error: authModal element (id 'auth-modal') was not found in the DOM!");
+        return;
+      }
+      authModal.style.display = 'flex';
+      document.body.classList.add('auth-modal-open');
+      document.body.style.overflow = 'hidden';
+      setAuthMode('login');
+    } catch (err) {
+      alert("openAuthModal Error: " + err.message);
+    }
   }
 
   function closeAuthModal() {
@@ -302,23 +336,29 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function setAuthMode(mode) {
-    authMode = mode;
-    authTabs.querySelectorAll('.auth-tab').forEach(t => {
-      t.classList.toggle('active', t.dataset.mode === mode);
-    });
+    try {
+      authMode = mode;
+      if (authTabs) {
+        authTabs.querySelectorAll('.auth-tab').forEach(t => {
+          t.classList.toggle('active', t.dataset.mode === mode);
+        });
+      }
 
-    if (mode === 'register') {
-      authModalTitle.innerText = 'Create an Account';
-      authModalSubtitle.innerText = 'Sign up to sync your library and addons across devices.';
-      authUsernameField.style.display = 'block';
-      authSubmitBtn.innerText = 'Create Account';
-    } else {
-      authModalTitle.innerText = 'Welcome back';
-      authModalSubtitle.innerText = 'Sign in to access your dashboard and MEEM addons.';
-      authUsernameField.style.display = 'none';
-      authSubmitBtn.innerText = 'Sign In';
+      if (mode === 'register') {
+        if (authModalTitle) authModalTitle.innerText = 'Create an Account';
+        if (authModalSubtitle) authModalSubtitle.innerText = 'Sign up to sync your library and addons across devices.';
+        if (authUsernameField) authUsernameField.style.display = 'block';
+        if (authSubmitBtn) authSubmitBtn.innerText = 'Create Account';
+      } else {
+        if (authModalTitle) authModalTitle.innerText = 'Welcome back';
+        if (authModalSubtitle) authModalSubtitle.innerText = 'Sign in to access your dashboard and MEEM addons.';
+        if (authUsernameField) authUsernameField.style.display = 'none';
+        if (authSubmitBtn) authSubmitBtn.innerText = 'Sign In';
+      }
+      if (authMsg) authMsg.style.display = 'none';
+    } catch (err) {
+      alert("setAuthMode Error: " + err.message);
     }
-    authMsg.style.display = 'none';
   }
 
   // Handle Login and Signup Forms
@@ -428,6 +468,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       currentUser = user;
       currentUserProfile = syncData.user;
+      currentUserProfiles = syncData.profiles || [];
+      if (currentUserProfiles.length > 0) {
+        activeProfileId = currentUserProfiles[0].id;
+      }
       
       showToast('Logged in successfully!');
       closeAuthModal();
@@ -457,6 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateNavbarUI() {
     const navAuthContainer = document.getElementById('nav-auth-container');
+    const navMylistLink = document.getElementById('nav-mylist-link');
     const navAddonsLink = document.getElementById('nav-addons-link');
     const navAdminLink = document.getElementById('nav-admin-link');
 
@@ -464,8 +509,22 @@ document.addEventListener('DOMContentLoaded', () => {
       const email = currentUser.email;
       const isAdmin = currentUserProfile?.role === 'admin';
       
-      const userName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.user_metadata?.username || email.split('@')[0];
-      const avatarUrl = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=8b5cf6&color=fff`;
+      // Use the application's default profile name and avatar if available!
+      const defaultProfile = currentUserProfiles && currentUserProfiles.length > 0 ? currentUserProfiles[0] : null;
+      
+      let userName = defaultProfile ? defaultProfile.name : (currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.user_metadata?.username || email.split('@')[0]);
+      let avatarUrl = '';
+      
+      if (defaultProfile && defaultProfile.avatar) {
+        if (defaultProfile.avatar.startsWith('http')) {
+          avatarUrl = defaultProfile.avatar;
+        } else {
+          // Resolve relative path to github raw content
+          avatarUrl = 'https://raw.githubusercontent.com/amromotaw3/MediaVault/main/src/renderer/' + defaultProfile.avatar;
+        }
+      } else {
+        avatarUrl = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=8b5cf6&color=fff`;
+      }
 
       navAuthContainer.innerHTML = `
         <div class="nav-profile-badge" id="nav-profile-badge">
@@ -480,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="dropdown-divider"></div>
             <a href="#hero" class="dropdown-item" id="dropdown-home-link"><i class="fa-solid fa-house"></i> Home</a>
+            <a href="#mylist-section" class="dropdown-item" id="dropdown-mylist-link"><i class="fa-solid fa-star"></i> My List</a>
             <a href="#addons-section" class="dropdown-item" id="dropdown-addons-link"><i class="fa-solid fa-puzzle-piece"></i> Addons</a>
             <a href="#admin-panel-section" class="dropdown-item" id="dropdown-admin-link" style="display: none;"><i class="fa-solid fa-user-shield"></i> Admin Panel</a>
             <div class="dropdown-divider"></div>
@@ -514,12 +574,24 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
 
+      const dropMylist = document.getElementById('dropdown-mylist-link');
       const dropAddons = document.getElementById('dropdown-addons-link');
       const dropAdmin = document.getElementById('dropdown-admin-link');
 
       // Show/hide navigation and dropdown links
+      if (navMylistLink) navMylistLink.style.display = 'inline-block';
       navAddonsLink.style.display = 'inline-block';
       
+      if (dropMylist) {
+        dropMylist.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          badge.classList.remove('active');
+          dropdown.classList.remove('active');
+          switchView('mylist');
+        });
+      }
+
       dropAddons.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -546,6 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       navAuthContainer.innerHTML = `<button class="btn-nav-primary" id="btn-login-nav">Sign In</button>`;
 
+      if (navMylistLink) navMylistLink.style.display = 'inline-block';
       navAddonsLink.style.display = 'none';
       navAdminLink.style.display = 'none';
     }
@@ -559,11 +632,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const hash = window.location.hash;
       if (hash === '#addons-section') {
         switchView('addons');
+      } else if (hash === '#mylist-section') {
+        switchView('mylist');
       } else if (hash === '#admin-panel-section' && isAdmin) {
         switchView('admin');
       } else {
         if (currentView === 'addons') {
           switchView('addons');
+        } else if (currentView === 'mylist') {
+          switchView('mylist');
         } else if (currentView === 'admin' && isAdmin) {
           switchView('admin');
         } else {
@@ -580,6 +657,12 @@ document.addEventListener('DOMContentLoaded', () => {
     supabaseClient.auth.getSession().then(({ data: { session } }) => {
       if (session && session.user) {
         currentUser = session.user;
+
+        // Clean URL hash so it doesn't try to parse it on refresh and break session
+        if (window.location.hash && (window.location.hash.includes('access_token=') || window.location.hash.includes('id_token='))) {
+          window.history.replaceState(null, null, window.location.pathname + window.location.search);
+        }
+
         // Fetch profiles or other syncing logic can trigger synchronously here
         syncAndInitialize(session.user).then(() => {
           updateNavbarUI();
@@ -604,6 +687,11 @@ document.addEventListener('DOMContentLoaded', () => {
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
       console.log(`[Auth State Change] Event: ${event}, User: ${session?.user?.email}`);
       if (session && session.user) {
+        // Clean URL hash so it doesn't try to parse it on refresh and break session
+        if (window.location.hash && (window.location.hash.includes('access_token=') || window.location.hash.includes('id_token='))) {
+          window.history.replaceState(null, null, window.location.pathname + window.location.search);
+        }
+
         // Prevent duplicate loads by checking user id
         if (!currentUser || currentUser.id !== session.user.id) {
           await syncAndInitialize(session.user);
@@ -611,6 +699,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         currentUser = null;
         currentUserProfile = null;
+        currentUserProfiles = [];
+        activeProfileId = null;
         updateNavbarUI();
         initializeSections();
       }
@@ -662,6 +752,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <button class="addon-btn addon-btn-secondary btn-copy-url" data-url="${addon.manifest_url}"><i class="fa-solid fa-copy"></i> Copy Link</button>
           </div>
         `;
+
+        // Add install button click event with security warning
+        card.querySelector('.addon-btn-primary').addEventListener('click', function(e) {
+          const confirmInstall = confirm(`Addon Security Warning:\n\nYou are about to install external addon "${addon.name}". Addons run third-party code and communicate with external web servers.\n\nDo you want to proceed and open MEEM?`);
+          if (!confirmInstall) {
+            e.preventDefault();
+          }
+        });
 
         // Add copy button event
         card.querySelector('.btn-copy-url').addEventListener('click', function() {
@@ -1275,5 +1373,470 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- CTA Slideshow Logic removed ---
+
+  // ==========================================
+  // --- My List & Library Logic ---
+  // ==========================================
+  // Helper function to open IMDb page for a media item
+  function openImdbLink(row) {
+    if (!row) return;
+    let imdbId = row.imdb_id || row.imdbId;
+    if (!imdbId && row.media_id && String(row.media_id).startsWith('tt')) {
+      imdbId = row.media_id.split(':')[0];
+    }
+    if (!imdbId && row.item_data) {
+      try {
+        const item = typeof row.item_data === 'string' ? JSON.parse(row.item_data) : row.item_data;
+        imdbId = item?.imdb_id || item?.imdbId || (item?.id && String(item.id).startsWith('tt') ? item.id : null);
+      } catch (e) {}
+    }
+    
+    if (imdbId && String(imdbId).startsWith('tt')) {
+      window.open(`https://www.imdb.com/title/${imdbId}/`, '_blank');
+    } else {
+      const queryName = row.title || row.name || (row.item_data && (row.item_data.title || row.item_data.name)) || '';
+      if (queryName) {
+        window.open(`https://www.imdb.com/find/?q=${encodeURIComponent(queryName)}`, '_blank');
+      } else {
+        showToast('IMDb info not available for this item.', 'error');
+      }
+    }
+  }
+
+  async function loadMyList() {
+    if (!supabaseClient) return;
+    
+    if (!currentUser) {
+      showToast('Please sign in to view your My List.', 'error');
+      openAuthModal('login');
+      switchView('home');
+      return;
+    }
+
+    if (!currentUserProfiles || currentUserProfiles.length === 0) {
+      try {
+        const { data: profs } = await supabaseClient
+          .from('account_profiles')
+          .select('*')
+          .eq('user_id', currentUser.id);
+        if (profs && profs.length > 0) {
+          currentUserProfiles = profs;
+          activeProfileId = profs[0].id;
+        }
+      } catch (e) {
+        console.warn('Failed to fetch fallback profiles:', e);
+      }
+    }
+
+    // Set up profile selector if it hasn't been set up yet
+    setupMyListProfileSelector();
+    
+    // Bind My List tab buttons
+    setupMyListTabs();
+    
+    // Render current active tab content
+    renderActiveMyListTab();
+  }
+
+  function setupMyListProfileSelector() {
+    const wrapper = document.getElementById('mylist-profile-selector-wrap');
+    const select = document.getElementById('mylist-profile-select');
+    if (!select || !wrapper) return;
+
+    if (currentUserProfiles.length > 0) {
+      wrapper.style.display = 'block';
+      // If no active profile selected yet, select the first one
+      if (!activeProfileId) {
+        activeProfileId = currentUserProfiles[0].id;
+      }
+      
+      // Populate select options if count changed or empty
+      if (select.children.length !== currentUserProfiles.length) {
+        select.innerHTML = '';
+        currentUserProfiles.forEach(prof => {
+          const opt = document.createElement('option');
+          opt.value = prof.id;
+          opt.textContent = prof.name;
+          if (prof.id === activeProfileId) opt.selected = true;
+          select.appendChild(opt);
+        });
+
+        // Add change listener
+        select.onchange = (e) => {
+          activeProfileId = e.target.value;
+          renderActiveMyListTab();
+        };
+      }
+    } else {
+      wrapper.style.display = 'none';
+    }
+  }
+
+  function setupMyListTabs() {
+    const tabs = document.querySelectorAll('.mylist-tab-btn');
+    tabs.forEach(btn => {
+      btn.onclick = (e) => {
+        tabs.forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const tabName = btn.getAttribute('data-tab');
+        activeMyListTab = tabName;
+        
+        document.querySelectorAll('.mylist-tab-pane').forEach(p => p.classList.remove('active'));
+        const activePane = document.getElementById(`pane-${tabName}`);
+        if (activePane) activePane.classList.add('active');
+        
+        renderActiveMyListTab();
+      };
+      
+      if (btn.getAttribute('data-tab') === activeMyListTab) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    document.querySelectorAll('.mylist-tab-pane').forEach(p => {
+      if (p.id === `pane-${activeMyListTab}`) {
+        p.classList.add('active');
+      } else {
+        p.classList.remove('active');
+      }
+    });
+  }
+
+  const cinemetaCache = {};
+  async function fetchItemDetails(mediaId, type = 'movie') {
+    const baseId = mediaId.split(':')[0];
+    if (cinemetaCache[baseId]) return cinemetaCache[baseId];
+
+    try {
+      const isImdb = baseId.startsWith('tt');
+      const resolvedType = mediaId.includes(':') ? 'series' : type;
+      if (isImdb) {
+        const resp = await fetch(`https://v3-cinemeta.strem.io/meta/${resolvedType}/${baseId}.json`);
+        const data = await resp.json();
+        const meta = data?.meta;
+        if (meta) {
+          cinemetaCache[baseId] = {
+            title: meta.name || meta.title || 'Untitled',
+            poster: meta.poster || 'imgs/img1.png',
+            backdrop: meta.background || '',
+            imdb_id: baseId
+          };
+          return cinemetaCache[baseId];
+        }
+      }
+    } catch (e) {
+      console.warn('Cinemeta fetch failed for', baseId, e);
+    }
+    return { title: 'Imported Item', poster: 'imgs/img1.png', backdrop: '', imdb_id: baseId };
+  }
+
+  async function renderActiveMyListTab() {
+    if (!activeProfileId) return;
+
+    if (activeMyListTab === 'watching') {
+      await renderWatchingTab();
+    } else if (activeMyListTab === 'watchlist') {
+      await renderWatchlistTab();
+    } else if (activeMyListTab === 'watched') {
+      await renderWatchedTab();
+    } else if (activeMyListTab === 'collections') {
+      await renderCollectionsTab();
+    }
+  }
+
+  async function renderWatchingTab() {
+    const grid = document.getElementById('grid-watching');
+    if (!grid) return;
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i><br>Loading watch progress...</div>';
+
+    try {
+      const { data: playback, error } = await supabaseClient
+        .from('playback_history')
+        .select('*')
+        .eq('profile_id', activeProfileId)
+        .eq('watched', false)
+        .gt('progress', 0)
+        .order('last_watched_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!playback || playback.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-circle-info" style="font-size: 24px; margin-bottom: 15px; color: var(--accent);"></i><br>No in-progress shows or movies. Start watching inside MEEM!</div>';
+        return;
+      }
+
+      const { data: watchlist } = await supabaseClient
+        .from('watchlist_items')
+        .select('*')
+        .eq('profile_id', activeProfileId);
+
+      grid.innerHTML = '';
+      
+      for (const row of playback) {
+        const baseId = row.media_id.split(':')[0];
+        let meta = watchlist?.find(item => item.media_id === baseId);
+        
+        let title = meta?.title;
+        let poster = meta?.poster_path;
+        let imdbId = meta?.imdb_id || (baseId.startsWith('tt') ? baseId : null);
+        
+        if (!title || !poster) {
+          const fallback = await fetchItemDetails(row.media_id, 'movie');
+          title = title || fallback.title;
+          poster = poster || fallback.poster;
+          imdbId = imdbId || fallback.imdb_id;
+        }
+
+        const progressPercent = row.duration ? Math.min((row.progress / row.duration) * 100, 100) : 0;
+        
+        let subtext = 'Movie';
+        if (row.media_id.includes(':')) {
+          const parts = row.media_id.split(':');
+          subtext = `Season ${parts[1]} — Episode ${parts[2]}`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'mylist-poster-card';
+        card.style.cursor = 'pointer';
+        card.title = `Click to view ${title} on IMDb`;
+        card.onclick = () => openImdbLink({ ...row, title, poster, imdb_id: imdbId });
+        card.innerHTML = `
+          <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
+          <div class="mylist-progress-container">
+            <div class="mylist-progress-bar" style="width: ${progressPercent}%"></div>
+          </div>
+          <div class="mylist-poster-overlay">
+            <span class="mylist-poster-title">${title}</span>
+            <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+    } catch (err) {
+      console.error('Failed to load watching tab:', err);
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444;">Failed to load data.</div>';
+    }
+  }
+
+  async function renderWatchlistTab() {
+    const grid = document.getElementById('grid-watchlist');
+    if (!grid) return;
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i><br>Loading watchlist...</div>';
+
+    try {
+      const { data: watchlist, error } = await supabaseClient
+        .from('watchlist_items')
+        .select('*')
+        .eq('profile_id', activeProfileId)
+        .order('added_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!watchlist || watchlist.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-circle-info" style="font-size: 24px; margin-bottom: 15px; color: var(--accent);"></i><br>Your watchlist is empty. Add movies or shows to your watchlist in MEEM!</div>';
+        return;
+      }
+
+      grid.innerHTML = '';
+      
+      watchlist.forEach(row => {
+        const title = row.title || 'Untitled';
+        const poster = row.poster_path || 'imgs/img1.png';
+        const subtext = row.type === 'series' || row.type === 'tv' ? 'TV Show' : 'Movie';
+
+        const card = document.createElement('div');
+        card.className = 'mylist-poster-card';
+        card.style.cursor = 'pointer';
+        card.title = `Click to view ${title} on IMDb`;
+        card.onclick = () => openImdbLink(row);
+        card.innerHTML = `
+          <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
+          <div class="mylist-poster-overlay">
+            <span class="mylist-poster-title">${title}</span>
+            <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    } catch (err) {
+      console.error('Failed to load watchlist:', err);
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444;">Failed to load watchlist.</div>';
+    }
+  }
+
+  async function renderWatchedTab() {
+    const grid = document.getElementById('grid-watched');
+    if (!grid) return;
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i><br>Loading watched history...</div>';
+
+    try {
+      const { data: playback, error } = await supabaseClient
+        .from('playback_history')
+        .select('*')
+        .eq('profile_id', activeProfileId)
+        .eq('watched', true)
+        .order('last_watched_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!playback || playback.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-circle-info" style="font-size: 24px; margin-bottom: 15px; color: var(--accent);"></i><br>You haven\'t fully watched any media yet!</div>';
+        return;
+      }
+
+      const { data: watchlist } = await supabaseClient
+        .from('watchlist_items')
+        .select('*')
+        .eq('profile_id', activeProfileId);
+
+      grid.innerHTML = '';
+      
+      for (const row of playback) {
+        const baseId = row.media_id.split(':')[0];
+        let meta = watchlist?.find(item => item.media_id === baseId);
+        
+        let title = meta?.title;
+        let poster = meta?.poster_path;
+        let imdbId = meta?.imdb_id || (baseId.startsWith('tt') ? baseId : null);
+        
+        if (!title || !poster) {
+          const fallback = await fetchItemDetails(row.media_id, 'movie');
+          title = title || fallback.title;
+          poster = fallback.poster || 'imgs/img1.png';
+          imdbId = imdbId || fallback.imdb_id;
+        }
+
+        let subtext = 'Movie';
+        if (row.media_id.includes(':')) {
+          const parts = row.media_id.split(':');
+          subtext = `Season ${parts[1]} — Episode ${parts[2]}`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'mylist-poster-card';
+        card.style.cursor = 'pointer';
+        card.title = `Click to view ${title} on IMDb`;
+        card.onclick = () => openImdbLink({ ...row, title, poster, imdb_id: imdbId });
+        card.innerHTML = `
+          <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
+          <div class="mylist-poster-overlay">
+            <span class="mylist-poster-title">${title}</span>
+            <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext} (Watched)</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+    } catch (err) {
+      console.error('Failed to load watched tab:', err);
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444;">Failed to load data.</div>';
+    }
+  }
+
+  async function renderCollectionsTab() {
+    const container = document.getElementById('container-collections');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i><br>Loading collections...</div>';
+
+    try {
+      const { data: customLists, error: clError } = await supabaseClient
+        .from('custom_lists')
+        .select('id, list_name, theme_color, list_items(*)')
+        .eq('profile_id', activeProfileId);
+
+      if (clError) throw clError;
+
+      let sharedLists = [];
+      try {
+        const { data: memberRefs } = await supabaseClient
+          .from('list_members')
+          .select('list_id')
+          .eq('user_id', currentUser.id)
+          .eq('status', 'joined');
+          
+        if (memberRefs && memberRefs.length > 0) {
+          const sharedListIds = memberRefs.map(m => m.list_id);
+          const { data: fetchedShared, error: sharedError } = await supabaseClient
+            .from('custom_lists')
+            .select('id, list_name, theme_color, list_items(*)')
+            .in('id', sharedListIds);
+          if (!sharedError && fetchedShared) {
+            sharedLists = fetchedShared;
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load shared lists:', e);
+      }
+
+      const combinedLists = [...(customLists || [])];
+      const ownedIds = new Set(combinedLists.map(l => l.id));
+      for (const list of sharedLists) {
+        if (!ownedIds.has(list.id)) {
+          combinedLists.push(list);
+        }
+      }
+
+      if (combinedLists.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-circle-info" style="font-size: 24px; margin-bottom: 15px; color: var(--accent);"></i><br>No custom lists or collections created yet. Create lists in the MEEM app!</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      
+      combinedLists.forEach(list => {
+        const listName = list.list_name || 'Unnamed List';
+        const themeColor = list.theme_color || '#a855f7';
+        const items = list.list_items || [];
+        const isShared = !customLists.some(l => l.id === list.id);
+
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'collection-group';
+        groupDiv.style.marginBottom = '40px';
+        
+        groupDiv.innerHTML = `
+          <div class="collection-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+            <h3 class="collection-title" style="font-size: 1.3rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px;">
+              <span class="collection-dot" style="width: 12px; height: 12px; border-radius: 50%; display: inline-block; background-color: ${themeColor}"></span>
+              ${listName}
+              ${isShared ? '<span style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 8px;">SHARED</span>' : ''}
+            </h3>
+            <span class="collection-badge" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 4px 12px; border-radius: 100px; font-size: 0.85rem; font-weight: 600;">${items.length} ${items.length === 1 ? 'item' : 'items'}</span>
+          </div>
+          <div class="mylist-grid" id="collection-grid-${list.id}"></div>
+        `;
+        container.appendChild(groupDiv);
+
+        const gridEl = groupDiv.querySelector(`#collection-grid-${list.id}`);
+        if (items.length === 0) {
+          gridEl.innerHTML = '<div style="grid-column: 1/-1; color: var(--text-secondary); padding: 20px 0;">This list is empty.</div>';
+        } else {
+          items.forEach(item => {
+            const title = item.title || 'Untitled';
+            const poster = item.poster_path || 'imgs/img1.png';
+            const subtext = item.type === 'series' || item.type === 'tv' ? 'TV Show' : 'Movie';
+            
+            const card = document.createElement('div');
+            card.className = 'mylist-poster-card';
+            card.style.cursor = 'pointer';
+            card.title = `Click to view ${title} on IMDb`;
+            card.onclick = () => openImdbLink(item);
+            card.innerHTML = `
+              <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
+              <div class="mylist-poster-overlay">
+                <span class="mylist-poster-title">${title}</span>
+                <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext}</span>
+              </div>
+            `;
+            gridEl.appendChild(card);
+          });
+        }
+      });
+    } catch (err) {
+      console.error('Failed to load collections:', err);
+      container.innerHTML = '<div style="text-align: center; color: #ef4444;">Failed to load collections.</div>';
+    }
+  }
 
 });
