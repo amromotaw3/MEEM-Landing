@@ -35,6 +35,7 @@
       <div class="nav-links" id="nav-links">
         <a href="#hero">Home</a>
         <a href="#features">Features</a>
+        <a href="#mylist-section" id="nav-mylist-link" style="display: none;">My List</a>
         <a href="#addons-section" id="nav-addons-link" style="display: none;">Addons</a>
         <a href="#admin-panel-section" id="nav-admin-link" style="display: none;">Admin Panel</a>
       </div>
@@ -176,6 +177,48 @@
           <p class="feature-text">Create separate profiles with independent watch histories, settings, and custom avatars.</p>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- My List Section (Only visible when logged in) -->
+  <section class="mylist-section" id="mylist-section" style="display: none; padding: 120px 0 80px;">
+    <div class="container">
+      <div class="mylist-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 35px; flex-wrap: wrap; gap: 20px;">
+        <div>
+          <h1 style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 8px;">My List</h1>
+          <p style="color: var(--text-muted, #94a3b8); font-size: 0.95rem;">Manage your saved movies, TV shows, and watch progress synced from MEEM.</p>
+        </div>
+        <!-- Profile Selector Dropdown -->
+        <div id="mylist-profile-selector-wrap" style="display: none;">
+          <label style="color: var(--text-muted, #94a3b8); font-size: 0.85rem; margin-right: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">PROFILE:</label>
+          <select id="mylist-profile-select" class="mylist-profile-select" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; transition: border-color 0.2s;">
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="mylist-tabs" style="display: flex; gap: 12px; margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px; overflow-x: auto;">
+        <button class="mylist-tab-btn active" data-tab="watching"><i class="fa-solid fa-play"></i> Continue Watching</button>
+        <button class="mylist-tab-btn" data-tab="watchlist"><i class="fa-solid fa-bookmark"></i> Watchlist</button>
+        <button class="mylist-tab-btn" data-tab="watched"><i class="fa-solid fa-check-circle"></i> Watched</button>
+        <button class="mylist-tab-btn" data-tab="collections"><i class="fa-solid fa-folder-open"></i> Custom Lists</button>
+      </div>
+
+      <!-- Tab Content Panes -->
+      <div class="mylist-content">
+        <div class="mylist-tab-pane active" id="pane-watching">
+          <div class="mylist-grid" id="grid-watching"></div>
+        </div>
+        <div class="mylist-tab-pane" id="pane-watchlist">
+          <div class="mylist-grid" id="grid-watchlist"></div>
+        </div>
+        <div class="mylist-tab-pane" id="pane-watched">
+          <div class="mylist-grid" id="grid-watched"></div>
+        </div>
+        <div class="mylist-tab-pane" id="pane-collections">
+          <div id="container-collections"></div>
+        </div>
       </div>
     </div>
   </section>

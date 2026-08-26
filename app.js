@@ -1377,9 +1377,57 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // --- My List & Library Logic ---
   // ==========================================
-  async function loadMyList() {
-    if (!supabaseClient || !currentUser) return;
+  // Helper function to open IMDb page for a media item
+  function openImdbLink(row) {
+    if (!row) return;
+    let imdbId = row.imdb_id || row.imdbId;
+    if (!imdbId && row.media_id && String(row.media_id).startsWith('tt')) {
+      imdbId = row.media_id.split(':')[0];
+    }
+    if (!imdbId && row.item_data) {
+      try {
+        const item = typeof row.item_data === 'string' ? JSON.parse(row.item_data) : row.item_data;
+        imdbId = item?.imdb_id || item?.imdbId || (item?.id && String(item.id).startsWith('tt') ? item.id : null);
+      } catch (e) {}
+    }
     
+    if (imdbId && String(imdbId).startsWith('tt')) {
+      window.open(`https://www.imdb.com/title/${imdbId}/`, '_blank');
+    } else {
+      const queryName = row.title || row.name || (row.item_data && (row.item_data.title || row.item_data.name)) || '';
+      if (queryName) {
+        window.open(`https://www.imdb.com/find/?q=${encodeURIComponent(queryName)}`, '_blank');
+      } else {
+        showToast('IMDb info not available for this item.', 'error');
+      }
+    }
+  }
+
+  async function loadMyList() {
+    if (!supabaseClient) return;
+    
+    if (!currentUser) {
+      showToast('Please sign in to view your My List.', 'error');
+      openAuthModal('login');
+      switchView('home');
+      return;
+    }
+
+    if (!currentUserProfiles || currentUserProfiles.length === 0) {
+      try {
+        const { data: profs } = await supabaseClient
+          .from('account_profiles')
+          .select('*')
+          .eq('user_id', currentUser.id);
+        if (profs && profs.length > 0) {
+          currentUserProfiles = profs;
+          activeProfileId = profs[0].id;
+        }
+      } catch (e) {
+        console.warn('Failed to fetch fallback profiles:', e);
+      }
+    }
+
     // Set up profile selector if it hasn't been set up yet
     setupMyListProfileSelector();
     
@@ -1427,7 +1475,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupMyListTabs() {
     const tabs = document.querySelectorAll('.mylist-tab-btn');
     tabs.forEach(btn => {
-      // Remove any existing click listeners to avoid duplication
       btn.onclick = (e) => {
         tabs.forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
@@ -1435,7 +1482,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const tabName = btn.getAttribute('data-tab');
         activeMyListTab = tabName;
         
-        // Update visibility of panes
         document.querySelectorAll('.mylist-tab-pane').forEach(p => p.classList.remove('active'));
         const activePane = document.getElementById(`pane-${tabName}`);
         if (activePane) activePane.classList.add('active');
@@ -1443,7 +1489,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderActiveMyListTab();
       };
       
-      // Keep selected tab in sync
       if (btn.getAttribute('data-tab') === activeMyListTab) {
         btn.classList.add('active');
       } else {
@@ -1476,7 +1521,8 @@ document.addEventListener('DOMContentLoaded', () => {
           cinemetaCache[baseId] = {
             title: meta.name || meta.title || 'Untitled',
             poster: meta.poster || 'imgs/img1.png',
-            backdrop: meta.background || ''
+            backdrop: meta.background || '',
+            imdb_id: baseId
           };
           return cinemetaCache[baseId];
         }
@@ -1484,7 +1530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.warn('Cinemeta fetch failed for', baseId, e);
     }
-    return { title: 'Imported Item', poster: 'imgs/img1.png', backdrop: '' };
+    return { title: 'Imported Item', poster: 'imgs/img1.png', backdrop: '', imdb_id: baseId };
   }
 
   async function renderActiveMyListTab() {
@@ -1504,10 +1550,9 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderWatchingTab() {
     const grid = document.getElementById('grid-watching');
     if (!grid) return;
-    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);"><i class="fa-solid fa-spinner fa-spin"></i> Loading watch progress...</div>';
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i><br>Loading watch progress...</div>';
 
     try {
-      // 1. Fetch playback history
       const { data: playback, error } = await supabaseClient
         .from('playback_history')
         .select('*')
@@ -1523,7 +1568,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // 2. Fetch watchlist items for resolving titles
       const { data: watchlist } = await supabaseClient
         .from('watchlist_items')
         .select('*')
@@ -1532,23 +1576,22 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.innerHTML = '';
       
       for (const row of playback) {
-        // Resolve metadata
         const baseId = row.media_id.split(':')[0];
         let meta = watchlist?.find(item => item.media_id === baseId);
         
         let title = meta?.title;
         let poster = meta?.poster_path;
+        let imdbId = meta?.imdb_id || (baseId.startsWith('tt') ? baseId : null);
         
         if (!title || !poster) {
           const fallback = await fetchItemDetails(row.media_id, 'movie');
           title = title || fallback.title;
           poster = poster || fallback.poster;
+          imdbId = imdbId || fallback.imdb_id;
         }
 
-        // Calculate progress percentage
         const progressPercent = row.duration ? Math.min((row.progress / row.duration) * 100, 100) : 0;
         
-        // Subtext if it is an episode (e.g. S1:E2)
         let subtext = 'Movie';
         if (row.media_id.includes(':')) {
           const parts = row.media_id.split(':');
@@ -1557,6 +1600,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const card = document.createElement('div');
         card.className = 'mylist-poster-card';
+        card.style.cursor = 'pointer';
+        card.title = `Click to view ${title} on IMDb`;
+        card.onclick = () => openImdbLink({ ...row, title, poster, imdb_id: imdbId });
         card.innerHTML = `
           <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
           <div class="mylist-progress-container">
@@ -1564,7 +1610,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="mylist-poster-overlay">
             <span class="mylist-poster-title">${title}</span>
-            <span class="mylist-poster-meta">${subtext}</span>
+            <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext}</span>
           </div>
         `;
         grid.appendChild(card);
@@ -1578,7 +1624,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderWatchlistTab() {
     const grid = document.getElementById('grid-watchlist');
     if (!grid) return;
-    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);"><i class="fa-solid fa-spinner fa-spin"></i> Loading watchlist...</div>';
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i><br>Loading watchlist...</div>';
 
     try {
       const { data: watchlist, error } = await supabaseClient
@@ -1590,7 +1636,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (error) throw error;
 
       if (!watchlist || watchlist.length === 0) {
-        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-circle-info" style="font-size: 24px; margin-bottom: 15px; color: var(--accent);"></i><br>Your watchlist is empty. Add movies or shows to your watchlist!</div>';
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-circle-info" style="font-size: 24px; margin-bottom: 15px; color: var(--accent);"></i><br>Your watchlist is empty. Add movies or shows to your watchlist in MEEM!</div>';
         return;
       }
 
@@ -1599,15 +1645,18 @@ document.addEventListener('DOMContentLoaded', () => {
       watchlist.forEach(row => {
         const title = row.title || 'Untitled';
         const poster = row.poster_path || 'imgs/img1.png';
-        const subtext = row.type === 'series' ? 'TV Show' : 'Movie';
+        const subtext = row.type === 'series' || row.type === 'tv' ? 'TV Show' : 'Movie';
 
         const card = document.createElement('div');
         card.className = 'mylist-poster-card';
+        card.style.cursor = 'pointer';
+        card.title = `Click to view ${title} on IMDb`;
+        card.onclick = () => openImdbLink(row);
         card.innerHTML = `
           <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
           <div class="mylist-poster-overlay">
             <span class="mylist-poster-title">${title}</span>
-            <span class="mylist-poster-meta">${subtext}</span>
+            <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext}</span>
           </div>
         `;
         grid.appendChild(card);
@@ -1621,10 +1670,9 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderWatchedTab() {
     const grid = document.getElementById('grid-watched');
     if (!grid) return;
-    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);"><i class="fa-solid fa-spinner fa-spin"></i> Loading watched history...</div>';
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i><br>Loading watched history...</div>';
 
     try {
-      // 1. Fetch watched items
       const { data: playback, error } = await supabaseClient
         .from('playback_history')
         .select('*')
@@ -1639,7 +1687,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // 2. Fetch watchlist items for resolving titles
       const { data: watchlist } = await supabaseClient
         .from('watchlist_items')
         .select('*')
@@ -1648,17 +1695,18 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.innerHTML = '';
       
       for (const row of playback) {
-        // Resolve metadata
         const baseId = row.media_id.split(':')[0];
         let meta = watchlist?.find(item => item.media_id === baseId);
         
         let title = meta?.title;
         let poster = meta?.poster_path;
+        let imdbId = meta?.imdb_id || (baseId.startsWith('tt') ? baseId : null);
         
         if (!title || !poster) {
           const fallback = await fetchItemDetails(row.media_id, 'movie');
           title = title || fallback.title;
           poster = fallback.poster || 'imgs/img1.png';
+          imdbId = imdbId || fallback.imdb_id;
         }
 
         let subtext = 'Movie';
@@ -1669,11 +1717,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const card = document.createElement('div');
         card.className = 'mylist-poster-card';
+        card.style.cursor = 'pointer';
+        card.title = `Click to view ${title} on IMDb`;
+        card.onclick = () => openImdbLink({ ...row, title, poster, imdb_id: imdbId });
         card.innerHTML = `
           <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
           <div class="mylist-poster-overlay">
             <span class="mylist-poster-title">${title}</span>
-            <span class="mylist-poster-meta">${subtext} (Watched)</span>
+            <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext} (Watched)</span>
           </div>
         `;
         grid.appendChild(card);
@@ -1687,10 +1738,9 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderCollectionsTab() {
     const container = document.getElementById('container-collections');
     if (!container) return;
-    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary);"><i class="fa-solid fa-spinner fa-spin"></i> Loading collections...</div>';
+    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 40px;"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px;"></i><br>Loading collections...</div>';
 
     try {
-      // Fetch custom lists
       const { data: customLists, error: clError } = await supabaseClient
         .from('custom_lists')
         .select('id, list_name, theme_color, list_items(*)')
@@ -1698,7 +1748,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (clError) throw clError;
 
-      // Fetch shared lists
       let sharedLists = [];
       try {
         const { data: memberRefs } = await supabaseClient
@@ -1744,42 +1793,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const groupDiv = document.createElement('div');
         groupDiv.className = 'collection-group';
+        groupDiv.style.marginBottom = '40px';
         
-        let gridHtml = '';
-        if (items.length === 0) {
-          gridHtml = '<div style="color: var(--text-secondary); padding: 20px 0;">This list is empty.</div>';
-        } else {
-          gridHtml = '<div class="mylist-grid">';
-          items.forEach(item => {
-            const title = item.title || 'Untitled';
-            const poster = item.poster_path || 'imgs/img1.png';
-            const subtext = item.type === 'series' ? 'TV Show' : 'Movie';
-            
-            gridHtml += `
-              <div class="mylist-poster-card">
-                <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
-                <div class="mylist-poster-overlay">
-                  <span class="mylist-poster-title">${title}</span>
-                  <span class="mylist-poster-meta">${subtext}</span>
-                </div>
-              </div>
-            `;
-          });
-          gridHtml += '</div>';
-        }
-
         groupDiv.innerHTML = `
-          <div class="collection-header">
-            <h3 class="collection-title">
-              <span class="collection-dot" style="background-color: ${themeColor}"></span>
+          <div class="collection-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+            <h3 class="collection-title" style="font-size: 1.3rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px;">
+              <span class="collection-dot" style="width: 12px; height: 12px; border-radius: 50%; display: inline-block; background-color: ${themeColor}"></span>
               ${listName}
               ${isShared ? '<span style="font-size: 11px; background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 2px 8px; border-radius: 100px; font-weight: 700; margin-left: 8px;">SHARED</span>' : ''}
             </h3>
-            <span class="collection-badge">${items.length} ${items.length === 1 ? 'item' : 'items'}</span>
+            <span class="collection-badge" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 4px 12px; border-radius: 100px; font-size: 0.85rem; font-weight: 600;">${items.length} ${items.length === 1 ? 'item' : 'items'}</span>
           </div>
-          ${gridHtml}
+          <div class="mylist-grid" id="collection-grid-${list.id}"></div>
         `;
         container.appendChild(groupDiv);
+
+        const gridEl = groupDiv.querySelector(`#collection-grid-${list.id}`);
+        if (items.length === 0) {
+          gridEl.innerHTML = '<div style="grid-column: 1/-1; color: var(--text-secondary); padding: 20px 0;">This list is empty.</div>';
+        } else {
+          items.forEach(item => {
+            const title = item.title || 'Untitled';
+            const poster = item.poster_path || 'imgs/img1.png';
+            const subtext = item.type === 'series' || item.type === 'tv' ? 'TV Show' : 'Movie';
+            
+            const card = document.createElement('div');
+            card.className = 'mylist-poster-card';
+            card.style.cursor = 'pointer';
+            card.title = `Click to view ${title} on IMDb`;
+            card.onclick = () => openImdbLink(item);
+            card.innerHTML = `
+              <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
+              <div class="mylist-poster-overlay">
+                <span class="mylist-poster-title">${title}</span>
+                <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext}</span>
+              </div>
+            `;
+            gridEl.appendChild(card);
+          });
+        }
       });
     } catch (err) {
       console.error('Failed to load collections:', err);
