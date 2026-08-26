@@ -1505,14 +1505,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function formatPosterUrl(posterUrl) {
+    if (!posterUrl || typeof posterUrl !== 'string') return '';
+    let url = posterUrl.trim();
+    if (url.startsWith('//')) return 'https:' + url;
+    if (url.startsWith('/')) return 'https://image.tmdb.org/t/p/w500' + url;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return '';
+  }
+
   const cinemetaCache = {};
   async function fetchItemDetails(mediaId, type = 'movie') {
-    const baseId = mediaId.split(':')[0];
+    if (!mediaId) return { title: 'Untitled', poster: 'imgs/img1.png', backdrop: '', imdb_id: null };
+    const baseId = String(mediaId).split(':')[0];
     if (cinemetaCache[baseId]) return cinemetaCache[baseId];
 
     try {
       const isImdb = baseId.startsWith('tt');
-      const resolvedType = mediaId.includes(':') ? 'series' : type;
+      const isTmdbNum = /^\d+$/.test(baseId);
+      const resolvedType = String(mediaId).includes(':') ? 'series' : type;
+
       if (isImdb) {
         const resp = await fetch(`https://v3-cinemeta.strem.io/meta/${resolvedType}/${baseId}.json`);
         const data = await resp.json();
@@ -1520,17 +1532,67 @@ document.addEventListener('DOMContentLoaded', () => {
         if (meta) {
           cinemetaCache[baseId] = {
             title: meta.name || meta.title || 'Untitled',
-            poster: meta.poster || 'imgs/img1.png',
+            poster: formatPosterUrl(meta.poster) || 'imgs/img1.png',
             backdrop: meta.background || '',
             imdb_id: baseId
           };
           return cinemetaCache[baseId];
         }
+      } else if (isTmdbNum) {
+        const tmdbType = resolvedType === 'series' || resolvedType === 'tv' ? 'tv' : 'movie';
+        const apiKey = '8424263152ef61819d9bca1b44cb79b5';
+        const resp = await fetch(`https://api.themoviedb.org/3/${tmdbType}/${baseId}?api_key=${apiKey}&language=ar-SA`);
+        const meta = await resp.json();
+        if (meta && (meta.title || meta.name)) {
+          cinemetaCache[baseId] = {
+            title: meta.title || meta.name || meta.original_title || meta.original_name || 'Untitled',
+            poster: meta.poster_path ? `https://image.tmdb.org/t/p/w500${meta.poster_path}` : 'imgs/img1.png',
+            backdrop: meta.backdrop_path ? `https://image.tmdb.org/t/p/w1280${meta.backdrop_path}` : '',
+            imdb_id: meta.imdb_id || null
+          };
+          return cinemetaCache[baseId];
+        }
       }
     } catch (e) {
-      console.warn('Cinemeta fetch failed for', baseId, e);
+      console.warn('Metadata fetch failed for', baseId, e);
     }
-    return { title: 'Imported Item', poster: 'imgs/img1.png', backdrop: '', imdb_id: baseId };
+    return { title: 'Untitled', poster: 'imgs/img1.png', backdrop: '', imdb_id: baseId };
+  }
+
+  async function resolveItemInfo(row) {
+    if (!row) return { title: 'Untitled', poster: 'imgs/img1.png', imdb_id: null, media_id: '' };
+    
+    let itemData = {};
+    if (row.item_data) {
+      try {
+        itemData = typeof row.item_data === 'string' ? JSON.parse(row.item_data) : row.item_data;
+      } catch (e) {}
+    }
+
+    let title = row.title || row.name || itemData.title || itemData.name || itemData.name_ar || itemData.title_ar || '';
+    let rawPoster = row.poster_path || row.poster || itemData.poster_path || itemData.posterPath || itemData.poster || itemData.logo || itemData.favicon || itemData.backdrop_path || itemData.backdrop || '';
+    let poster = formatPosterUrl(rawPoster);
+    let imdbId = row.imdb_id || row.imdbId || itemData.imdb_id || itemData.imdbId || null;
+
+    const mediaId = row.media_id || itemData.id || itemData.media_id || '';
+    if (mediaId && String(mediaId).startsWith('tt')) {
+      imdbId = imdbId || String(mediaId).split(':')[0];
+    }
+
+    if (!title || title === 'Untitled' || !poster) {
+      if (mediaId) {
+        const type = row.type || itemData.type || (String(mediaId).includes(':') ? 'series' : 'movie');
+        const fallback = await fetchItemDetails(mediaId, type);
+        title = title || fallback.title || 'Untitled';
+        poster = poster || formatPosterUrl(fallback.poster);
+        imdbId = imdbId || fallback.imdb_id;
+      }
+    }
+
+    if (!title) title = 'Untitled';
+    if (!poster) poster = 'imgs/img1.png';
+
+    return { title, poster, imdb_id: imdbId, media_id: mediaId, raw: row };
   }
 
   async function renderActiveMyListTab() {
@@ -1576,24 +1638,15 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.innerHTML = '';
       
       for (const row of playback) {
-        const baseId = row.media_id.split(':')[0];
-        let meta = watchlist?.find(item => item.media_id === baseId);
+        const baseId = String(row.media_id || '').split(':')[0];
+        let meta = watchlist?.find(item => item.media_id === baseId || item.media_id === row.media_id);
         
-        let title = meta?.title;
-        let poster = meta?.poster_path;
-        let imdbId = meta?.imdb_id || (baseId.startsWith('tt') ? baseId : null);
-        
-        if (!title || !poster) {
-          const fallback = await fetchItemDetails(row.media_id, 'movie');
-          title = title || fallback.title;
-          poster = poster || fallback.poster;
-          imdbId = imdbId || fallback.imdb_id;
-        }
+        const itemInfo = await resolveItemInfo(meta || row);
 
         const progressPercent = row.duration ? Math.min((row.progress / row.duration) * 100, 100) : 0;
         
         let subtext = 'Movie';
-        if (row.media_id.includes(':')) {
+        if (row.media_id && row.media_id.includes(':')) {
           const parts = row.media_id.split(':');
           subtext = `Season ${parts[1]} — Episode ${parts[2]}`;
         }
@@ -1601,15 +1654,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'mylist-poster-card';
         card.style.cursor = 'pointer';
-        card.title = `Click to view ${title} on IMDb`;
-        card.onclick = () => openImdbLink({ ...row, title, poster, imdb_id: imdbId });
+        card.title = `Click to view ${itemInfo.title} on IMDb`;
+        card.onclick = () => openImdbLink(itemInfo);
         card.innerHTML = `
-          <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
+          <img src="${itemInfo.poster}" alt="${itemInfo.title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
           <div class="mylist-progress-container">
             <div class="mylist-progress-bar" style="width: ${progressPercent}%"></div>
           </div>
           <div class="mylist-poster-overlay">
-            <span class="mylist-poster-title">${title}</span>
+            <span class="mylist-poster-title">${itemInfo.title}</span>
             <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext}</span>
           </div>
         `;
@@ -1642,25 +1695,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
       grid.innerHTML = '';
       
-      watchlist.forEach(row => {
-        const title = row.title || 'Untitled';
-        const poster = row.poster_path || 'imgs/img1.png';
+      for (const row of watchlist) {
+        const itemInfo = await resolveItemInfo(row);
         const subtext = row.type === 'series' || row.type === 'tv' ? 'TV Show' : 'Movie';
 
         const card = document.createElement('div');
         card.className = 'mylist-poster-card';
         card.style.cursor = 'pointer';
-        card.title = `Click to view ${title} on IMDb`;
-        card.onclick = () => openImdbLink(row);
+        card.title = `Click to view ${itemInfo.title} on IMDb`;
+        card.onclick = () => openImdbLink(itemInfo);
         card.innerHTML = `
-          <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
+          <img src="${itemInfo.poster}" alt="${itemInfo.title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
           <div class="mylist-poster-overlay">
-            <span class="mylist-poster-title">${title}</span>
+            <span class="mylist-poster-title">${itemInfo.title}</span>
             <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext}</span>
           </div>
         `;
         grid.appendChild(card);
-      });
+      }
     } catch (err) {
       console.error('Failed to load watchlist:', err);
       grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ef4444;">Failed to load watchlist.</div>';
@@ -1695,22 +1747,13 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.innerHTML = '';
       
       for (const row of playback) {
-        const baseId = row.media_id.split(':')[0];
-        let meta = watchlist?.find(item => item.media_id === baseId);
+        const baseId = String(row.media_id || '').split(':')[0];
+        let meta = watchlist?.find(item => item.media_id === baseId || item.media_id === row.media_id);
         
-        let title = meta?.title;
-        let poster = meta?.poster_path;
-        let imdbId = meta?.imdb_id || (baseId.startsWith('tt') ? baseId : null);
-        
-        if (!title || !poster) {
-          const fallback = await fetchItemDetails(row.media_id, 'movie');
-          title = title || fallback.title;
-          poster = fallback.poster || 'imgs/img1.png';
-          imdbId = imdbId || fallback.imdb_id;
-        }
+        const itemInfo = await resolveItemInfo(meta || row);
 
         let subtext = 'Movie';
-        if (row.media_id.includes(':')) {
+        if (row.media_id && row.media_id.includes(':')) {
           const parts = row.media_id.split(':');
           subtext = `Season ${parts[1]} — Episode ${parts[2]}`;
         }
@@ -1718,12 +1761,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'mylist-poster-card';
         card.style.cursor = 'pointer';
-        card.title = `Click to view ${title} on IMDb`;
-        card.onclick = () => openImdbLink({ ...row, title, poster, imdb_id: imdbId });
+        card.title = `Click to view ${itemInfo.title} on IMDb`;
+        card.onclick = () => openImdbLink(itemInfo);
         card.innerHTML = `
-          <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
+          <img src="${itemInfo.poster}" alt="${itemInfo.title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
           <div class="mylist-poster-overlay">
-            <span class="mylist-poster-title">${title}</span>
+            <span class="mylist-poster-title">${itemInfo.title}</span>
             <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext} (Watched)</span>
           </div>
         `;
@@ -1785,7 +1828,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       container.innerHTML = '';
       
-      combinedLists.forEach(list => {
+      for (const list of combinedLists) {
         const listName = list.list_name || 'Unnamed List';
         const themeColor = list.theme_color || '#a855f7';
         const items = list.list_items || [];
@@ -1812,27 +1855,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (items.length === 0) {
           gridEl.innerHTML = '<div style="grid-column: 1/-1; color: var(--text-secondary); padding: 20px 0;">This list is empty.</div>';
         } else {
-          items.forEach(item => {
-            const title = item.title || 'Untitled';
-            const poster = item.poster_path || 'imgs/img1.png';
+          for (const item of items) {
+            const itemInfo = await resolveItemInfo(item);
             const subtext = item.type === 'series' || item.type === 'tv' ? 'TV Show' : 'Movie';
             
             const card = document.createElement('div');
             card.className = 'mylist-poster-card';
             card.style.cursor = 'pointer';
-            card.title = `Click to view ${title} on IMDb`;
-            card.onclick = () => openImdbLink(item);
+            card.title = `Click to view ${itemInfo.title} on IMDb`;
+            card.onclick = () => openImdbLink(itemInfo);
             card.innerHTML = `
-              <img src="${poster}" alt="${title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
+              <img src="${itemInfo.poster}" alt="${itemInfo.title}" class="mylist-poster-img" onerror="this.src='imgs/img1.png'">
               <div class="mylist-poster-overlay">
-                <span class="mylist-poster-title">${title}</span>
+                <span class="mylist-poster-title">${itemInfo.title}</span>
                 <span class="mylist-poster-meta"><i class="fa-brands fa-imdb"></i> ${subtext}</span>
               </div>
             `;
             gridEl.appendChild(card);
-          });
+          }
         }
-      });
+      }
     } catch (err) {
       console.error('Failed to load collections:', err);
       container.innerHTML = '<div style="text-align: center; color: #ef4444;">Failed to load collections.</div>';
