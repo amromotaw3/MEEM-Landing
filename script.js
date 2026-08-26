@@ -1508,6 +1508,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function formatPosterUrl(posterUrl) {
     if (!posterUrl || typeof posterUrl !== 'string') return '';
     let url = posterUrl.trim();
+    
+    // Ignore local desktop filesystem paths saved by MEEM desktop app
+    if (/^[a-zA-Z]:[\\\/]/i.test(url) || url.startsWith('file:') || url.includes('\\AppData\\') || url.includes('/AppData/') || url.includes('\\banners\\') || url.includes('/banners/')) {
+      return '';
+    }
+
     if (url.startsWith('//')) return 'https:' + url;
     if (url.startsWith('/')) return 'https://image.tmdb.org/t/p/w500' + url;
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -1570,10 +1576,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let title = row.title || row.name || itemData.title || itemData.name || itemData.name_ar || itemData.title_ar || '';
-    let rawPoster = row.poster_path || row.poster || itemData.poster_path || itemData.posterPath || itemData.poster || itemData.logo || itemData.favicon || itemData.backdrop_path || itemData.backdrop || '';
-    let poster = formatPosterUrl(rawPoster);
-    let imdbId = row.imdb_id || row.imdbId || itemData.imdb_id || itemData.imdbId || null;
+    
+    let poster = formatPosterUrl(row.poster_path) ||
+                 formatPosterUrl(row.backdrop_path) ||
+                 formatPosterUrl(itemData.poster_path) ||
+                 formatPosterUrl(itemData.posterPath) ||
+                 formatPosterUrl(itemData.backdrop_path) ||
+                 formatPosterUrl(itemData.backdropPath) ||
+                 formatPosterUrl(itemData.poster) ||
+                 formatPosterUrl(itemData.backdrop) ||
+                 formatPosterUrl(itemData.logo) ||
+                 formatPosterUrl(itemData.favicon) || '';
 
+    let imdbId = row.imdb_id || row.imdbId || itemData.imdb_id || itemData.imdbId || null;
     const mediaId = row.media_id || itemData.id || itemData.media_id || '';
     if (mediaId && String(mediaId).startsWith('tt')) {
       imdbId = imdbId || String(mediaId).split(':')[0];
