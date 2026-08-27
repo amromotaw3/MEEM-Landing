@@ -302,108 +302,119 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const hash = window.location.hash;
-      const search = window.location.search;
       const statusText = document.getElementById('status-text');
       const manualLink = document.getElementById('manual-link');
-      const hiddenIframe = document.getElementById('hidden-iframe');
 
-      // Parse error parameters if any
-      const urlParams = new URLSearchParams(search || hash.replace('#', '?'));
-      const errorCode = urlParams.get('error');
-      const errorDesc = urlParams.get('error_description');
-      const source = urlParams.get('source');
+      // ── 1. Parse ALL params from both hash and query string ──────────────
+      // Supabase PKCE flow sends: ?code=xxx  (query string)
+      // Supabase implicit flow sends: #access_token=xxx  (hash fragment)
+      const rawSearch = window.location.search || '';
+      const rawHash   = window.location.hash   || '';
 
+      function collectParams() {
+        const map = new Map();
+        const addFrom = (str) => {
+          if (!str) return;
+          const clean = str.replace(/^[?#]/, '');
+          try {
+            new URLSearchParams(clean).forEach((v, k) => { if (v && !map.has(k)) map.set(k, v); });
+          } catch (_) {}
+        };
+        addFrom(rawHash);
+        addFrom(rawSearch);
+        return map;
+      }
+
+      const params = collectParams();
+
+      // ── 2. Handle errors from Supabase / Google ──────────────────────────
+      const errorCode = params.get('error');
+      const errorDesc = params.get('error_description');
       if (errorCode || errorDesc) {
-        const errorMsg = errorDesc ? errorDesc.replace(/\+/g, ' ') : errorCode;
-        statusText.innerText = "Error: " + errorMsg;
-        document.querySelector('.status-dot').style.background = '#ef4444';
-        document.querySelector('.status-dot').style.boxShadow = '0 0 10px #ef4444';
-        
-        // Show error styling on header
-        const header = document.querySelector('h1');
-        header.innerText = "Authentication Failed";
-        header.style.background = "linear-gradient(135deg, #ff8a8a 0%, #f87171 100%)";
-        header.style.webkitBackgroundClip = "text";
-        header.style.webkitTextFillColor = "transparent";
-
-        // Change sparkle icon to warning
-        const iconContainer = document.querySelector('.success-icon');
-        iconContainer.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>';
+        const msg = errorDesc ? errorDesc.replace(/\+/g, ' ') : errorCode;
+        statusText.innerText = 'Error: ' + msg;
+        document.querySelector('.status-dot').style.cssText = 'background:#ef4444;box-shadow:0 0 10px #ef4444';
+        document.querySelector('h1').innerText = 'Authentication Failed';
+        document.querySelector('.success-icon').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i>';
+        manualLink.style.display = 'none';
         return;
       }
 
-      if (!hash) {
-        statusText.innerText = "No session hash found. Try logging in again.";
-        document.querySelector('.status-dot').style.background = '#ef4444';
-        document.querySelector('.status-dot').style.boxShadow = '0 0 10px #ef4444';
+      const code        = params.get('code');
+      const accessToken = params.get('access_token');
+      const refreshToken= params.get('refresh_token') || '';
+
+      if (!code && !accessToken) {
+        statusText.innerText = 'No authentication token found. Please try again.';
+        document.querySelector('.status-dot').style.cssText = 'background:#ef4444;box-shadow:0 0 10px #ef4444';
+        manualLink.style.display = 'none';
         return;
       }
 
-      // Check if source is web (landing page login) or app (Electron app login)
-      if (source === 'web') {
-        statusText.innerText = "Authenticated! Redirecting to dashboard...";
-        document.querySelector('.status-dot').style.background = '#10b981';
-        document.querySelector('.status-dot').style.boxShadow = '0 0 10px #10b981';
-        
-        // Hide manual launch button since we are redirecting within the browser
-        if (manualLink) manualLink.style.display = 'none';
-        
-        // Redirect back to landing page index with the hash for Supabase JS client to parse it
-        setTimeout(() => {
-          window.location.href = window.location.origin + '/' + hash;
-        }, 1500);
-        return;
+      // ── 3. Build the deep link back to the native app ────────────────────
+      // Reconstruct a canonical fragment so the app's parseAuthCallbackParams
+      // can find the tokens regardless of where Supabase put them.
+      let deepLinkFragment;
+      if (code) {
+        deepLinkFragment = '?code=' + encodeURIComponent(code);
+      } else {
+        deepLinkFragment = '#access_token=' + encodeURIComponent(accessToken) +
+          (refreshToken ? '&refresh_token=' + encodeURIComponent(refreshToken) : '');
+        // Pass through any extra params the app might need (type, provider_token, etc.)
+        ['type','provider_token','provider_refresh_token','expires_in','token_type'].forEach(k => {
+          const v = params.get(k);
+          if (v) deepLinkFragment += '&' + k + '=' + encodeURIComponent(v);
+        });
       }
 
-      // Format Deep Links (support both meem:// and mediavault:// protocols)
-      const deepLinkMeem = 'meem://callback' + hash;
-      const deepLinkMediaVault = 'mediavault://callback' + hash;
+      const deepLinkMeem       = 'meem://auth/callback' + deepLinkFragment;
+      const deepLinkFallback   = 'mediavault://callback' + deepLinkFragment;
+      // Android Intent URL — forces the OS to resolve meem:// even from Chrome Custom Tabs
+      const androidIntentMeem  = 'intent://auth/callback' + deepLinkFragment +
+        '#Intent;scheme=meem;package=com.meem.app;S.browser_fallback_url=https%3A%2F%2Fmeem-watch.vercel.app;end;';
 
-      // Update manual launch button link
+      // Update manual button
       manualLink.href = deepLinkMeem;
+      manualLink.innerText = 'Open MEEM App';
+      manualLink.style.display = 'inline-flex';
 
-      // 1. Attempt Iframe delivery to Local Electron API server (usually localhost:3000)
-      const localServerUrl = 'http://localhost:3000/' + hash;
-      hiddenIframe.src = localServerUrl;
+      // ── 4. Redirect sequence ──────────────────────────────────────────────
+      statusText.innerText = 'Sending session to MEEM...';
 
-      // 2. Fallback to deep link protocol after 600ms
+      const tryRedirect = (url) => {
+        try {
+          const a = document.createElement('a');
+          a.href = url;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch (_) {}
+      };
+
+      // Attempt 1: Direct meem:// deep link (works when app is registered)
+      setTimeout(() => tryRedirect(deepLinkMeem), 200);
+
+      // Attempt 2: Android Intent URL (works from Chrome/Chrome Custom Tabs)
+      setTimeout(() => { window.location.href = androidIntentMeem; }, 600);
+
+      // Attempt 3: mediavault:// fallback
+      setTimeout(() => tryRedirect(deepLinkFallback), 1000);
+
+      // Update UI after attempts
       setTimeout(() => {
-        statusText.innerText = "Session linked. Opening MEEM app...";
-        
-        // Quietly try to launch meem:// protocol
-        const linkElem = document.createElement('a');
-        linkElem.href = deepLinkMeem;
-        linkElem.style.display = 'none';
-        document.body.appendChild(linkElem);
-        linkElem.click();
-        document.body.removeChild(linkElem);
+        statusText.innerText = 'Session ready. Tap below if the app did not open.';
+        document.querySelector('.status-dot').style.cssText = 'background:#10b981;box-shadow:0 0 10px #10b981';
+      }, 1600);
 
-        // Backup try to launch mediavault:// protocol
-        setTimeout(() => {
-          const backupElem = document.createElement('a');
-          backupElem.href = deepLinkMediaVault;
-          backupElem.style.display = 'none';
-          document.body.appendChild(backupElem);
-          backupElem.click();
-          document.body.removeChild(backupElem);
-        }, 500);
-
-        // Update status UI
-        setTimeout(() => {
-          statusText.innerText = "Securely connected. You can close this window now.";
-          document.querySelector('.status-dot').style.background = '#10b981';
-          document.querySelector('.status-dot').style.boxShadow = '0 0 10px #10b981';
-        }, 1200);
-      }, 600);
-
-      // Support manual fallback deep links
+      // ── 5. Manual button click ───────────────────────────────────────────
       manualLink.addEventListener('click', (e) => {
-        setTimeout(() => {
-          window.location.href = deepLinkMediaVault;
-        }, 1200);
+        e.preventDefault();
+        tryRedirect(deepLinkMeem);
+        setTimeout(() => { window.location.href = androidIntentMeem; }, 400);
       });
     });
   </script>
+
 </body>
 </html>
