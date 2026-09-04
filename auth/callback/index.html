@@ -15,15 +15,15 @@
   
   <style>
     :root {
-      --bg-base: #000000;
-      --bg-surface: #09090b;
+      --bg-base: #050508;
+      --bg-surface: #0d0d14;
       --accent: #ffffff;
-      --accent-glow: rgba(255, 255, 255, 0.3);
-      --glass-border: rgba(255, 255, 255, 0.18);
+      --accent-glow: rgba(255, 255, 255, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.14);
       --text-primary: #ffffff;
       --text-secondary: #a1a1aa;
       --radius-lg: 24px;
-      --radius-md: 16px;
+      --radius-md: 14px;
     }
 
     * {
@@ -33,7 +33,7 @@
     }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
       background-color: var(--bg-base);
       color: var(--text-primary);
       min-height: 100vh;
@@ -44,53 +44,17 @@
       position: relative;
     }
 
-    /* ═══ Background Orbit Orbs ═══ */
-    .background-canvas {
+    /* ═══ Ambient Glowing Orbs ═══ */
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.22; transform: scale(1); }
+      50% { opacity: 0.38; transform: scale(1.05); }
+    }
+    .ambient-glow {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      overflow: hidden;
+      border-radius: 9999px;
+      filter: blur(90px);
       pointer-events: none;
-    }
-
-    .blob {
-      position: absolute;
-      width: 80%;
-      height: 80%;
-      filter: blur(100px);
-      will-change: transform;
-    }
-
-    .blob-1 {
-      top: -20%;
-      left: -20%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-      animation: splashOrbit 12s infinite ease-in-out;
-    }
-
-    .blob-2 {
-      bottom: -20%;
-      right: -20%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
-      animation: splashOrbit 16s infinite ease-in-out reverse;
-    }
-
-    @keyframes splashOrbit {
-      0%, 100% {
-        transform: translate(0, 0) scale(1) rotate(0deg);
-      }
-      25% {
-        transform: translate(10%, 8%) scale(1.05) rotate(5deg);
-      }
-      50% {
-        transform: translate(-5%, 15%) scale(0.95) rotate(-5deg);
-      }
-      75% {
-        transform: translate(-10%, -3%) scale(1.02) rotate(3deg);
-      }
+      animation: pulseGlow 7s ease-in-out infinite;
     }
 
     /* ═══ Glass Card Container ═══ */
@@ -98,25 +62,25 @@
       position: relative;
       z-index: 10;
       width: 100%;
-      max-width: 460px;
-      padding: 40px 30px;
-      background: var(--bg-surface);
+      max-width: 480px;
+      padding: 44px 32px;
+      background: rgba(13, 13, 20, 0.85);
       border: 1px solid var(--glass-border);
       border-radius: var(--radius-lg);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      animation: cardSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: cardSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     @keyframes cardSlideUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(24px);
       }
       to {
         opacity: 1;
@@ -127,9 +91,9 @@
     /* ═══ Icon & Success Animations ═══ */
     .success-icon-wrapper {
       position: relative;
-      width: 90px;
-      height: 90px;
-      margin-bottom: 25px;
+      width: 84px;
+      height: 84px;
+      margin-bottom: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -140,17 +104,16 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08);
-      border: 2px solid rgba(255, 255, 255, 0.25);
-      animation: ringPulse 2s infinite ease-out;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      animation: ringPulse 2.2s infinite ease-out;
     }
 
     .success-icon {
-      font-size: 36px;
+      font-size: 32px;
       color: #ffffff;
       text-shadow: 0 0 15px var(--accent-glow);
       z-index: 2;
-      animation: checkPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
     }
 
     @keyframes ringPulse {
@@ -164,24 +127,13 @@
       }
     }
 
-    @keyframes checkPop {
-      0% {
-        opacity: 0;
-        transform: scale(0.5) rotate(-15deg);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1) rotate(0deg);
-      }
-    }
-
     /* ═══ Typography ═══ */
     h1 {
       font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
       letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #d4d4d8 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -191,7 +143,7 @@
       font-size: 14px;
       line-height: 1.6;
       color: var(--text-secondary);
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
 
     /* ═══ Sync status ═══ */
@@ -200,20 +152,20 @@
       align-items: center;
       gap: 8px;
       padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--glass-border);
-      border-radius: var(--radius-md);
+      border-radius: 9999px;
       font-size: 13px;
       color: var(--text-primary);
-      margin-bottom: 25px;
+      margin-bottom: 22px;
     }
 
     .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #4ade80;
-      box-shadow: 0 0 10px #4ade80;
+      background: #34d399;
+      box-shadow: 0 0 10px #34d399;
       animation: dotPulse 1.5s infinite ease-in-out;
     }
 
@@ -222,15 +174,22 @@
       50% { transform: scale(1.3); opacity: 1; }
     }
 
-    /* ═══ Fallback Action Button ═══ */
+    /* ═══ Fallback Action Buttons ═══ */
+    .btn-group {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     .action-btn {
       width: 100%;
       padding: 14px;
       background: #ffffff;
-      border: 1.5px solid #ffffff;
+      border: 1px solid #ffffff;
       color: #000000;
-      font-weight: 700;
-      font-size: 15px;
+      font-weight: 800;
+      font-size: 14px;
       border-radius: var(--radius-md);
       cursor: pointer;
       text-decoration: none;
@@ -238,33 +197,53 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25);
     }
 
     .action-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(255, 255, 255, 0.25);
-      background: #f4f4f5;
+      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+      background: #fafafa;
     }
 
-    .action-btn:active {
-      transform: translateY(0);
+    .secondary-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
     .footer-note {
       font-size: 12px;
-      color: #6b7280;
-      margin-top: 25px;
+      color: #71717a;
+      margin-top: 20px;
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
 
-  <!-- Background Mesh Orbs -->
-  <div class="background-canvas">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
+  <!-- Ambient Light Orbs -->
+  <div style="position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none;">
+    <div class="ambient-glow" style="width:480px;height:480px;background:#ffffff;top:-100px;left:50%;transform:translateX(-50%);"></div>
+    <div class="ambient-glow" style="width:360px;height:360px;background:#64748b;bottom:-40px;right:-40px;"></div>
   </div>
 
   <!-- Content Card -->
@@ -277,37 +256,42 @@
     <h1>Login Successful!</h1>
     
     <p>
-      We have securely linked your account. You can now close this browser window and return to the MEEM application to explore your updated dashboard.
+      Your account authentication is complete. Return to MEEM to access your synchronized profiles, library, and VIP features.
     </p>
 
     <!-- Connection Status Badge -->
     <div class="status-badge" id="status-container">
       <div class="status-dot"></div>
-      <span id="status-text">Linking session with MEEM...</span>
+      <span id="status-text">Returning to MEEM...</span>
     </div>
 
-    <!-- Manual Deep Link Fallback Button -->
-    <a href="#" id="manual-link" class="action-btn">
-      <i class="fa-solid fa-arrow-up-right-from-square"></i>
-      Open MEEM App
-    </a>
+    <!-- Fallback Action Buttons -->
+    <div class="btn-group">
+      <a href="#" id="manual-link" class="action-btn">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        <span>فتح تطبيق ميم / Open MEEM App</span>
+      </a>
+
+      <button type="button" id="copy-token-btn" class="secondary-btn">
+        <i class="fa-regular fa-clone"></i>
+        <span id="copy-token-text">نسخ رمز الدخول / Copy Token</span>
+      </button>
+    </div>
 
     <div class="footer-note">
-      Didn't redirect? Click the button above to launch the application.
+      إذا لم يفتح التطبيق تلقائياً، اضغط على <strong>فتح تطبيق ميم</strong> أو انسخ الرمز وارجع للتطبيق.
+      <br>
+      <span style="font-size: 11px; opacity: 0.8;">Tap <strong>Open MEEM App</strong> or copy token and return to MEEM if not redirected automatically.</span>
     </div>
   </div>
-
-  <!-- Hidden iframe for localhost communication -->
-  <iframe id="hidden-iframe" style="display:none; width:0; height:0; border:none;"></iframe>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const statusText = document.getElementById('status-text');
       const manualLink = document.getElementById('manual-link');
+      const copyTokenBtn = document.getElementById('copy-token-btn');
+      const copyTokenText = document.getElementById('copy-token-text');
 
-      // ── 1. Parse ALL params from both hash and query string ──────────────
-      // Supabase PKCE flow sends: ?code=xxx  (query string)
-      // Supabase implicit flow sends: #access_token=xxx  (hash fragment)
       const rawSearch = window.location.search || '';
       const rawHash   = window.location.hash   || '';
 
@@ -327,16 +311,16 @@
 
       const params = collectParams();
 
-      // ── 2. Handle errors from Supabase / Google ──────────────────────────
       const errorCode = params.get('error');
       const errorDesc = params.get('error_description');
       if (errorCode || errorDesc) {
         const msg = errorDesc ? errorDesc.replace(/\+/g, ' ') : errorCode;
-        statusText.innerText = 'Error: ' + msg;
+        statusText.innerText = 'فشل تسجيل الدخول: ' + msg;
         document.querySelector('.status-dot').style.cssText = 'background:#ef4444;box-shadow:0 0 10px #ef4444';
         document.querySelector('h1').innerText = 'Authentication Failed';
         document.querySelector('.success-icon').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i>';
         manualLink.style.display = 'none';
+        copyTokenBtn.style.display = 'none';
         return;
       }
 
@@ -348,70 +332,69 @@
         statusText.innerText = 'No authentication token found. Please try again.';
         document.querySelector('.status-dot').style.cssText = 'background:#ef4444;box-shadow:0 0 10px #ef4444';
         manualLink.style.display = 'none';
+        copyTokenBtn.style.display = 'none';
         return;
       }
 
-      // ── 3. Build the deep link back to the native app ────────────────────
-      // Reconstruct a canonical fragment so the app's parseAuthCallbackParams
-      // can find the tokens regardless of where Supabase put them.
-      let deepLinkFragment;
+      let deepLinkFragment = '';
       if (code) {
         deepLinkFragment = '?code=' + encodeURIComponent(code);
       } else {
         deepLinkFragment = '#access_token=' + encodeURIComponent(accessToken) +
           (refreshToken ? '&refresh_token=' + encodeURIComponent(refreshToken) : '');
-        // Pass through any extra params the app might need (type, provider_token, etc.)
         ['type','provider_token','provider_refresh_token','expires_in','token_type'].forEach(k => {
           const v = params.get(k);
           if (v) deepLinkFragment += '&' + k + '=' + encodeURIComponent(v);
         });
       }
 
-      const deepLinkMeem       = 'meem://auth/callback' + deepLinkFragment;
-      const deepLinkFallback   = 'mediavault://callback' + deepLinkFragment;
-      // Android Intent URL — forces the OS to resolve meem:// even from Chrome Custom Tabs
-      const androidIntentMeem  = 'intent://auth/callback' + deepLinkFragment +
-        '#Intent;scheme=meem;package=com.meem.app;S.browser_fallback_url=https%3A%2F%2Fmeem-watch.vercel.app;end;';
+      const isAndroid = /android/i.test(navigator.userAgent || '');
+      const deepLinkMeem = 'meem://auth/callback' + deepLinkFragment;
+      const intentUri = 'intent://auth/callback' + deepLinkFragment + '#Intent;scheme=meem;package=com.meem.app;end;';
+      const tokenToCopy = deepLinkMeem;
 
-      // Update manual button
+      // Automatically copy deep link / token to clipboard on page load so MEEM can detect it when resumed
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(tokenToCopy).catch(() => {});
+        }
+      } catch (_) {}
+
       manualLink.href = deepLinkMeem;
-      manualLink.innerText = 'Open MEEM App';
-      manualLink.style.display = 'inline-flex';
-
-      // ── 4. Redirect sequence ──────────────────────────────────────────────
-      statusText.innerText = 'Sending session to MEEM...';
-
-      const tryRedirect = (url) => {
-        try {
-          const a = document.createElement('a');
-          a.href = url;
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        } catch (_) {}
-      };
-
-      // Attempt 1: Direct meem:// deep link (works when app is registered)
-      setTimeout(() => tryRedirect(deepLinkMeem), 200);
-
-      // Attempt 2: Android Intent URL (works from Chrome/Chrome Custom Tabs)
-      setTimeout(() => { window.location.href = androidIntentMeem; }, 600);
-
-      // Attempt 3: mediavault:// fallback
-      setTimeout(() => tryRedirect(deepLinkFallback), 1000);
-
-      // Update UI after attempts
-      setTimeout(() => {
-        statusText.innerText = 'Session ready. Tap below if the app did not open.';
-        document.querySelector('.status-dot').style.cssText = 'background:#10b981;box-shadow:0 0 10px #10b981';
-      }, 1600);
-
-      // ── 5. Manual button click ───────────────────────────────────────────
       manualLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        tryRedirect(deepLinkMeem);
-        setTimeout(() => { window.location.href = androidIntentMeem; }, 400);
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(tokenToCopy).catch(() => {});
+          }
+        } catch (_) {}
+        if (isAndroid) {
+          setTimeout(() => {
+            try { window.location.href = intentUri; } catch (_) {}
+          }, 400);
+        }
+      });
+
+      if (isAndroid) {
+        try {
+          window.location.href = deepLinkMeem;
+        } catch (_) {
+          try { window.location.href = intentUri; } catch (_) {}
+        }
+      } else {
+        try {
+          window.location.replace(deepLinkMeem);
+        } catch (_) {}
+      }
+
+      copyTokenBtn.addEventListener('click', () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(tokenToCopy).then(() => {
+            copyTokenText.innerText = '✓ تم النسخ! ارجع للتطبيق الآن';
+            setTimeout(() => { copyTokenText.innerText = 'نسخ رمز الدخول / Copy Token'; }, 3000);
+          }).catch(() => {
+            copyTokenText.innerText = 'Failed to copy';
+          });
+        }
       });
     });
   </script>
