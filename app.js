@@ -1736,6 +1736,56 @@ document.addEventListener('DOMContentLoaded', () => {
       
       for (const row of watchlist) {
         const itemInfo = await resolveItemInfo(row);
+        const isRadio = row.type === 'radio' || (row.item_data && (row.item_data.type === 'radio' || row.item_data.media_type === 'radio'));
+        const isNetworkStream = row.type === 'iptv' || (row.item_data && (row.item_data.type === 'iptv' || row.item_data.media_type === 'iptv'));
+
+        if (isRadio || isNetworkStream) {
+          const card = document.createElement('div');
+          card.className = 'mylist-poster-card live-card';
+          card.style.cursor = 'default';
+          card.title = itemInfo.title;
+          
+          const iconClass = isRadio ? 'fa-solid fa-headphones' : 'fa-solid fa-tv';
+          const typeLabel = isRadio ? 'Audio Stream' : 'Network Stream';
+          const badgeBg = isRadio ? '#818cf8' : '#ef4444';
+          const gradient = isRadio 
+            ? 'linear-gradient(135deg, rgba(30, 20, 50, 0.95), rgba(12, 10, 24, 0.98))'
+            : 'linear-gradient(135deg, rgba(15, 25, 40, 0.95), rgba(8, 12, 22, 0.98))';
+          
+          let imageHTML = `<div class="live-card-placeholder" style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; min-height: 220px; background:${gradient}; padding: 14px; text-align:center; box-sizing:border-box;">
+              <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; margin-bottom: 12px; box-shadow: 0 0 20px rgba(255,255,255,0.15);">
+                <i class="${iconClass}" style="font-size:24px; color:#fff;"></i>
+              </div>
+              <span style="font-weight:700; color:#fff; font-size:13px; line-height:1.2; word-break:break-word;">${itemInfo.title}</span>
+            </div>`;
+            
+          if (itemInfo.poster && itemInfo.poster !== 'imgs/img1.png') {
+            imageHTML = `<div style="position:relative; width:100%; height:100%; min-height: 220px; background:${gradient}; box-sizing:border-box;">
+              <img src="${itemInfo.poster}" alt="${itemInfo.title}" class="mylist-poster-img" style="width:100%; height:100%; object-fit:contain; padding:16px; box-sizing:border-box; position:relative; z-index:2;" onerror="this.style.display='none'; this.parentElement.querySelector('.live-card-fallback').style.display='flex';">
+              <div class="live-card-fallback" style="display:none; flex-direction:column; align-items:center; justify-content:center; position:absolute; inset:0; padding:14px; text-align:center; z-index:1;">
+                <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; margin-bottom: 12px;">
+                  <i class="${iconClass}" style="font-size:24px; color:#fff;"></i>
+                </div>
+                <span style="font-weight:700; color:#fff; font-size:13px; line-height:1.2;">${itemInfo.title}</span>
+              </div>
+            </div>`;
+          }
+          
+          card.innerHTML = `
+            ${imageHTML}
+            <div style="position: absolute; top: 8px; left: 8px; background: ${badgeBg}; color: #ffffff; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; z-index: 10; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+              <span style="width: 6px; height: 6px; background: #ffffff; border-radius: 50%; display: inline-block;"></span>
+              LIVE
+            </div>
+            <div class="mylist-poster-overlay">
+              <span class="mylist-poster-title">${itemInfo.title}</span>
+              <span class="mylist-poster-meta"><i class="${iconClass}"></i> ${typeLabel}</span>
+            </div>
+          `;
+          grid.appendChild(card);
+          continue;
+        }
+
         const subtext = row.type === 'series' || row.type === 'tv' ? 'TV Show' : 'Movie';
 
         const card = document.createElement('div');
