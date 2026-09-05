@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'discord',
           options: {
-            redirectTo: 'https://mediavault-five.vercel.app/auth/callback?source=web'
+            redirectTo: 'https://meem-watch.vercel.app/auth/callback?source=web'
           }
         });
         if (error) throw error;
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: 'https://mediavault-five.vercel.app/auth/callback?source=web'
+            redirectTo: 'https://meem-watch.vercel.app/auth/callback?source=web'
           }
         });
         if (error) throw error;
@@ -805,7 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnCopyCallback = document.getElementById('btn-copy-callback');
   if (btnCopyCallback) {
     btnCopyCallback.addEventListener('click', () => {
-      const callbackUrl = 'https://mediavault-five.vercel.app/auth/callback';
+      const callbackUrl = 'https://meem-watch.vercel.app/auth/callback';
       navigator.clipboard.writeText(callbackUrl).then(() => {
         showToast('Callback URL copied to clipboard!');
         

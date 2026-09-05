@@ -35,6 +35,7 @@
       <div class="nav-links" id="nav-links">
         <a href="#hero">Home</a>
         <a href="#features">Features</a>
+        <a href="#pricing">VIP Pricing</a>
         <a href="#mylist-section" id="nav-mylist-link">My List</a>
         <a href="#addons-section" id="nav-addons-link" style="display: none;">Addons</a>
         <a href="#admin-panel-section" id="nav-admin-link" style="display: none;">Admin Panel</a>
@@ -45,11 +46,10 @@
     </div>
   </nav>
 
-  <!-- Background Mesh -->
+  <!-- Ambient Light Orbs -->
   <div class="background-canvas">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+    <div class="ambient-glow" style="width: 500px; height: 500px; background: #ffffff; top: -100px; left: 50%; transform: translateX(-50%);"></div>
+    <div class="ambient-glow" style="width: 420px; height: 420px; background: #64748b; bottom: -60px; right: -60px;"></div>
   </div>
 
   <!-- Hero Section -->
@@ -58,7 +58,7 @@
       <div class="hero-content">
         <div class="app-badge">
           <img src="imgs/appicon.png" alt="MEEM Logo" class="badge-icon">
-          <span id="app-version-badge">MEEM V2.6.0 IS HERE</span>
+          <span id="app-version-badge">MEEM V3.8.0 IS HERE</span>
         </div>
         <h1 class="hero-title">The Ultimate Cross-Platform<br>Media Player Utility</h1>
         <p class="hero-subtitle">
@@ -178,6 +178,74 @@
           <p class="feature-text">Create separate profiles with independent watch histories, settings, and custom avatars — ideal for shared devices.</p>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- VIP Pricing & Gumroad Section -->
+  <section class="vip-section" id="pricing">
+    <div class="container">
+      <div class="vip-eyebrow">
+        <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+        <span>MEEM VIP UPGRADE</span>
+      </div>
+      <h2 class="vip-title">Choose Your VIP Access</h2>
+      <p class="vip-subtitle">
+        Instant license key delivered immediately via email. Enter it directly inside MEEM to unlock all premium features across all your devices.
+      </p>
+
+      <div class="pricing-grid">
+        <!-- Monthly Pass -->
+        <div class="pricing-card">
+          <div>
+            <div class="pricing-plan-name">Monthly Pass</div>
+            <div class="pricing-price">12.99 <span>SAR / mo</span></div>
+            <div class="pricing-subtext">Renews automatically • Cancel anytime</div>
+
+            <ul class="pricing-features">
+              <li><i class="fa-solid fa-check"></i> Unlimited Offline Downloads</li>
+              <li><i class="fa-solid fa-check"></i> YouTube Audio & Video Downloader</li>
+              <li><i class="fa-solid fa-check"></i> Cross-Device Cloud Sync & Resume</li>
+              <li><i class="fa-solid fa-check"></i> Multi-Profile PIN Protection</li>
+              <li><i class="fa-solid fa-check"></i> Shared Watchlist Collaboration</li>
+            </ul>
+          </div>
+
+          <a href="https://3mromotawa.gumroad.com/l/MEEMVIP" target="_blank" rel="noopener noreferrer" class="btn-gumroad secondary">
+            <span>Get Monthly VIP</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- Yearly Pass (Featured) -->
+        <div class="pricing-card featured">
+          <div class="pricing-badge">Most Popular • Save 25%</div>
+
+          <div>
+            <div class="pricing-plan-name">Yearly Pass</div>
+            <div class="pricing-price">119.99 <span>SAR / yr</span></div>
+            <div class="pricing-subtext">(~9.99 SAR / month • 2 Months Free)</div>
+
+            <ul class="pricing-features">
+              <li><i class="fa-solid fa-check"></i> Everything in Monthly Pass</li>
+              <li><i class="fa-solid fa-check"></i> High-Speed Priority Download Streams</li>
+              <li><i class="fa-solid fa-check"></i> Early Access to New Addon Features</li>
+              <li><i class="fa-solid fa-check"></i> Multi-Device Continuous Cloud Sync</li>
+              <li><i class="fa-solid fa-check"></i> Priority Discord VIP Role & Support</li>
+            </ul>
+          </div>
+
+          <a href="https://3mromotawa.gumroad.com/l/MEEMVIP" target="_blank" rel="noopener noreferrer" class="btn-gumroad primary">
+            <span>Get Yearly VIP</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="gumroad-guarantee">
+        <span><i class="fa-solid fa-shield-halved"></i> Official Gumroad Store</span>
+        <span><i class="fa-solid fa-bolt"></i> Instant Key Delivery</span>
+        <span><i class="fa-solid fa-rotate-left"></i> 14-Day Refund Policy</span>
       </div>
     </div>
   </section>

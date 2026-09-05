@@ -327,6 +327,7 @@
       const code        = params.get('code');
       const accessToken = params.get('access_token');
       const refreshToken= params.get('refresh_token') || '';
+      const relayId     = params.get('relay_id') || params.get('auth_session_id');
 
       if (!code && !accessToken) {
         statusText.innerText = 'No authentication token found. Please try again.';
@@ -334,6 +335,30 @@
         manualLink.style.display = 'none';
         copyTokenBtn.style.display = 'none';
         return;
+      }
+
+      // Notify mobile auth relay immediately via Supabase RPC
+      if (relayId && (accessToken || code)) {
+        try {
+          const SUPABASE_URL = 'https://vvjnkgdrhyxilnderjdy.supabase.co';
+          const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2am5rZ2RyaHl4aWxuZGVyamR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTM2ODEsImV4cCI6MjA5NDg4OTY4MX0.Rb1OLJGXDToYZz-8h_gy2UNx_ou0P6BwGXc1ExFWSCU';
+          fetch(`${SUPABASE_URL}/rest/v1/rpc/complete_mobile_auth_relay`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            },
+            body: JSON.stringify({
+              p_relay_id: relayId,
+              p_access_token: accessToken || ('code:' + code),
+              p_refresh_token: refreshToken || '',
+              p_user_id: null
+            })
+          }).then(r => r.json()).then(res => {
+            console.log('[AUTH] Mobile relay signaled successfully:', res);
+          }).catch(err => console.warn('[AUTH] Mobile relay error:', err));
+        } catch (_) {}
       }
 
       let deepLinkFragment = '';
@@ -350,7 +375,9 @@
 
       const isAndroid = /android/i.test(navigator.userAgent || '');
       const deepLinkMeem = 'meem://auth/callback' + deepLinkFragment;
-      const intentUri = 'intent://auth/callback' + deepLinkFragment + '#Intent;scheme=meem;package=com.meem.app;end;';
+      // Properly format Intent URI for Android without duplicate hash tags
+      const queryOrHash = deepLinkFragment.startsWith('?') ? deepLinkFragment.substring(1) : (deepLinkFragment.startsWith('#') ? deepLinkFragment.substring(1) : deepLinkFragment);
+      const intentUri = 'intent://auth/callback?' + queryOrHash + '#Intent;scheme=meem;package=com.meem.app;end;';
       const tokenToCopy = deepLinkMeem;
 
       // Automatically copy deep link / token to clipboard on page load so MEEM can detect it when resumed

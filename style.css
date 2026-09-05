@@ -1,16 +1,16 @@
 :root {
-  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-  --bg-dark: #000000;
-  --bg-surface: #09090b;
+  --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+  --bg-dark: #050508;
+  --bg-surface: #0d0d14;
   --accent: #ffffff;
   --accent-secondary: #ffffff;
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
   --text-muted: #71717a;
-  --glass: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass: rgba(255, 255, 255, 0.035);
+  --glass-border: rgba(255, 255, 255, 0.12);
   --radius-lg: 24px;
-  --transition-smooth: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   --nav-height: 80px;
 }
 
@@ -140,7 +140,20 @@ body {
   box-shadow: 0 8px 25px rgba(255, 255, 255, 0.35);
 }
 
-/* ═══ Background Mesh Gradients ═══ */
+/* ═══ Ambient Glow & Glassmorphism ═══ */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(1.05); }
+}
+
+.ambient-glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(100px);
+  pointer-events: none;
+  animation: pulseGlow 8s ease-in-out infinite;
+}
+
 .background-canvas {
   position: fixed;
   top: 0;
@@ -149,50 +162,22 @@ body {
   height: 100%;
   z-index: -1;
   overflow: hidden;
-  background: #000000;
-}
-
-.blob {
-  position: absolute;
-  width: 80%;
-  height: 80%;
+  background: var(--bg-dark);
   pointer-events: none;
-  filter: blur(80px);
-  will-change: transform;
 }
 
-.blob-1 { 
-  top: -20%; left: -20%; 
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%); 
-  animation: splashOrbit 8s infinite ease-in-out;
-}
-.blob-2 { 
-  bottom: -20%; right: -20%; 
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.04) 0%, transparent 70%); 
-  animation: splashOrbit 12s infinite ease-in-out reverse;
-}
-.blob-3 { 
-  top: 20%; right: -30%; 
-  width: 70%; height: 70%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%); 
-  filter: blur(90px);
-  animation: splashOrbit 10s infinite linear;
+.glass-panel {
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-@keyframes splashOrbit {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1) rotate(0deg);
-  }
-  25% {
-    transform: translate(15%, 10%) scale(1.1) rotate(5deg);
-  }
-  50% {
-    transform: translate(-10%, 20%) scale(0.9) rotate(-5deg);
-  }
-  75% {
-    transform: translate(-15%, -5%) scale(1.05) rotate(3deg);
-  }
+.glass-panel-heavy {
+  background: rgba(13, 13, 20, 0.85);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 /* ═══ Typography & Shared ═══ */
@@ -300,19 +285,7 @@ h1, h2, h3 {
 }
 
 
-.hero-title {
-  font-size: 84px;
-  line-height: 0.95;
-  margin-bottom: 24px;
-}
 
-.hero-subtitle {
-  font-size: 20px;
-  color: var(--text-secondary);
-  max-width: 550px;
-  margin-bottom: 48px;
-  font-weight: 400;
-}
 
 .hero-actions {
   display: flex;
@@ -2002,6 +1975,195 @@ body.auth-modal-open #auth-modal #auth-close-btn {
 
 .mylist-poster-meta i {
   color: #f5c518;
+}
+
+/* ═══ VIP Pricing & Gumroad Section ═══ */
+.vip-section {
+  padding: 120px 0 100px;
+  position: relative;
+  text-align: center;
+}
+
+.vip-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin-bottom: 24px;
+}
+
+.vip-title {
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.vip-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  max-width: 650px;
+  margin: 0 auto 60px;
+  line-height: 1.6;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto 50px;
+  text-align: left;
+}
+
+.pricing-card {
+  background: rgba(13, 13, 20, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 36px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pricing-card:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.pricing-card.featured {
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 255, 255, 0.08);
+}
+
+.pricing-badge {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  color: #000000;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+}
+
+.pricing-plan-name {
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 8px;
+}
+
+.pricing-price {
+  font-size: 40px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.pricing-price span {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.pricing-subtext {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 28px;
+}
+
+.pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 36px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pricing-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.pricing-features li i {
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.btn-gumroad {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-gumroad.primary {
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25);
+}
+
+.btn-gumroad.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.45);
+  background: #fafafa;
+}
+
+.btn-gumroad.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.btn-gumroad.secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+}
+
+.gumroad-guarantee {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  flex-wrap: wrap;
 }
 
 
