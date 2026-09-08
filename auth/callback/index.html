@@ -269,19 +269,17 @@
     <div class="btn-group">
       <a href="#" id="manual-link" class="action-btn">
         <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        <span>فتح تطبيق ميم / Open MEEM App</span>
+        <span>Open MEEM App</span>
       </a>
 
       <button type="button" id="copy-token-btn" class="secondary-btn">
         <i class="fa-regular fa-clone"></i>
-        <span id="copy-token-text">نسخ رمز الدخول / Copy Token</span>
+        <span id="copy-token-text">Copy Access Token</span>
       </button>
     </div>
 
     <div class="footer-note">
-      إذا لم يفتح التطبيق تلقائياً، اضغط على <strong>فتح تطبيق ميم</strong> أو انسخ الرمز وارجع للتطبيق.
-      <br>
-      <span style="font-size: 11px; opacity: 0.8;">Tap <strong>Open MEEM App</strong> or copy token and return to MEEM if not redirected automatically.</span>
+      If the app didn't open automatically, click <strong>Open MEEM App</strong> or copy the token and return to MEEM.
     </div>
   </div>
 
@@ -315,7 +313,7 @@
       const errorDesc = params.get('error_description');
       if (errorCode || errorDesc) {
         const msg = errorDesc ? errorDesc.replace(/\+/g, ' ') : errorCode;
-        statusText.innerText = 'فشل تسجيل الدخول: ' + msg;
+        statusText.innerText = 'Authentication Failed: ' + msg;
         document.querySelector('.status-dot').style.cssText = 'background:#ef4444;box-shadow:0 0 10px #ef4444';
         document.querySelector('h1').innerText = 'Authentication Failed';
         document.querySelector('.success-icon').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i>';
@@ -416,8 +414,8 @@
       copyTokenBtn.addEventListener('click', () => {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(tokenToCopy).then(() => {
-            copyTokenText.innerText = '✓ تم النسخ! ارجع للتطبيق الآن';
-            setTimeout(() => { copyTokenText.innerText = 'نسخ رمز الدخول / Copy Token'; }, 3000);
+            copyTokenText.innerText = '✓ Copied! Return to MEEM';
+            setTimeout(() => { copyTokenText.innerText = 'Copy Access Token'; }, 3000);
           }).catch(() => {
             copyTokenText.innerText = 'Failed to copy';
           });
