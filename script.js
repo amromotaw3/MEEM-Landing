@@ -91,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function switchView(viewName) {
     const hero = document.getElementById('hero');
     const features = document.getElementById('features');
+    const pricing = document.getElementById('pricing');
     const addons = document.getElementById('addons-section');
     const mylist = document.getElementById('mylist-section');
     const admin = document.getElementById('admin-panel-section');
@@ -101,37 +102,41 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#nav-links a').forEach(link => link.classList.remove('active'));
 
     if (viewName === 'home') {
-      hero.style.display = 'block';
-      features.style.display = 'block';
-      addons.style.display = 'none';
-      mylist.style.display = 'none';
-      admin.style.display = 'none';
+      if (hero) hero.style.display = 'block';
+      if (features) features.style.display = 'block';
+      if (pricing) pricing.style.display = 'block';
+      if (addons) addons.style.display = 'none';
+      if (mylist) mylist.style.display = 'none';
+      if (admin) admin.style.display = 'none';
       const homeLink = document.querySelector('#nav-links a[href="#hero"]');
       if (homeLink) homeLink.classList.add('active');
     } else if (viewName === 'addons') {
-      hero.style.display = 'none';
-      features.style.display = 'none';
-      addons.style.display = 'block';
-      mylist.style.display = 'none';
-      admin.style.display = 'none';
+      if (hero) hero.style.display = 'none';
+      if (features) features.style.display = 'none';
+      if (pricing) pricing.style.display = 'none';
+      if (addons) addons.style.display = 'block';
+      if (mylist) mylist.style.display = 'none';
+      if (admin) admin.style.display = 'none';
       const addonsLink = document.getElementById('nav-addons-link');
       if (addonsLink) addonsLink.classList.add('active');
       loadAddons();
     } else if (viewName === 'mylist') {
-      hero.style.display = 'none';
-      features.style.display = 'none';
-      addons.style.display = 'none';
-      mylist.style.display = 'block';
-      admin.style.display = 'none';
+      if (hero) hero.style.display = 'none';
+      if (features) features.style.display = 'none';
+      if (pricing) pricing.style.display = 'none';
+      if (addons) addons.style.display = 'none';
+      if (mylist) mylist.style.display = 'block';
+      if (admin) admin.style.display = 'none';
       const mylistLink = document.getElementById('nav-mylist-link');
       if (mylistLink) mylistLink.classList.add('active');
       loadMyList();
     } else if (viewName === 'admin') {
-      hero.style.display = 'none';
-      features.style.display = 'none';
-      addons.style.display = 'none';
-      mylist.style.display = 'none';
-      admin.style.display = 'block';
+      if (hero) hero.style.display = 'none';
+      if (features) features.style.display = 'none';
+      if (pricing) pricing.style.display = 'none';
+      if (addons) addons.style.display = 'none';
+      if (mylist) mylist.style.display = 'none';
+      if (admin) admin.style.display = 'block';
       const adminLink = document.getElementById('nav-admin-link');
       if (adminLink) adminLink.classList.add('active');
       loadAdminPanel();
@@ -159,11 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('#nav-links a').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-      e.preventDefault();
       const href = this.getAttribute('href');
-      if (href === '#') return;
+      if (!href || href === '#') return;
 
-      if (href === '#hero' || href === '#features') {
+      // Allow multi-page links (e.g. ../ or ../community/) to navigate normally
+      if (!href.startsWith('#')) {
+        return;
+      }
+
+      e.preventDefault();
+
+      if (href === '#hero' || href === '#features' || href === '#pricing') {
         switchView('home');
         const target = document.querySelector(href);
         if (target) {
@@ -226,6 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let authMode = 'login'; // 'login' or 'register'
 
+  function getAuthRedirectUrl() {
+    return window.location.href.split('#')[0].split('?')[0];
+  }
+
   // Handle Discord OAuth Login
   if (oauthDiscordBtn) {
     oauthDiscordBtn.addEventListener('click', async (e) => {
@@ -238,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'discord',
           options: {
-            redirectTo: 'https://meem-watch.vercel.app/auth/callback?source=web'
+            redirectTo: getAuthRedirectUrl()
           }
         });
         if (error) throw error;
@@ -260,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: 'https://meem-watch.vercel.app/auth/callback?source=web'
+            redirectTo: getAuthRedirectUrl()
           }
         });
         if (error) throw error;
@@ -455,6 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   async function syncAndInitialize(user) {
     if (!user) return;
+    currentUser = user;
     try {
       // Execute the sync RPC to ensure public.users_accounts has the user record
       const { data: syncData, error: syncError } = await supabaseClient.rpc('sync_user_session', {
@@ -464,23 +480,21 @@ document.addEventListener('DOMContentLoaded', () => {
         p_hardware_id: null // Web clients don't use hardware limits
       });
 
-      if (syncError) throw syncError;
-
-      currentUser = user;
-      currentUserProfile = syncData.user;
-      currentUserProfiles = syncData.profiles || [];
-      if (currentUserProfiles.length > 0) {
-        activeProfileId = currentUserProfiles[0].id;
+      if (!syncError && syncData) {
+        currentUserProfile = syncData.user;
+        currentUserProfiles = syncData.profiles || [];
+        if (currentUserProfiles.length > 0) {
+          activeProfileId = currentUserProfiles[0].id;
+        }
       }
-      
-      showToast('Logged in successfully!');
-      closeAuthModal();
-      updateNavbarUI();
-      initializeSections();
     } catch (err) {
-      console.error('Sync session failed:', err);
-      showAuthMsg('Sync failed: ' + err.message, 'error');
+      console.warn('Sync session background error (proceeding with user session):', err);
     }
+    
+    showToast('Logged in successfully!');
+    closeAuthModal();
+    updateNavbarUI();
+    initializeSections();
   }
 
   async function handleLogout() {

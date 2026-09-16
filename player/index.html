@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEEM App — Modular Media Player Utility</title>
+  <meta name="description" content="MEEM is a versatile cross-platform media player utility for Windows and Android. Play media your way with modular add-ons and cross-device sync.">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="../imgs/favicon.ico">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="../style.css">
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="main-nav">
+    <div class="container nav-container">
+      <div class="nav-brand" id="nav-brand" style="cursor: pointer;" onclick="window.location.href='../'">
+        <img src="../imgs/appicon.png" alt="MEEM Logo" class="nav-logo">
+        <img src="../imgs/MEEM.png" alt="MEEM" class="nav-brand-text-logo">
+      </div>
+      <div class="nav-links" id="nav-links">
+        <a href="../">Home</a>
+        <a href="#hero" class="active">MEEM App</a>
+        <a href="../community/">Community</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">VIP Pricing</a>
+        <a href="#mylist-section" id="nav-mylist" style="display: none;">My List</a>
+        <a href="#addons-section" id="nav-addons" style="display: none;">Addons</a>
+        <a href="#admin-panel-section" id="nav-admin" style="display: none;">Admin</a>
+      </div>
+      <div class="nav-auth" id="nav-auth-container">
+        <button class="btn-nav-primary" id="btn-open-auth"><i class="fa-regular fa-user"></i> Sign In</button>
+        <div class="user-menu-dropdown" id="user-menu-dropdown" style="display: none;">
+          <button class="user-menu-btn" id="user-menu-btn">
+            <img src="../imgs/appicon.png" alt="Avatar" class="user-avatar" id="user-avatar">
+            <span class="user-name" id="user-display-name">User</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="user-dropdown-content" id="user-dropdown-content">
+            <div class="user-dropdown-header">
+              <p class="user-dropdown-email" id="user-dropdown-email">user@example.com</p>
+              <span class="user-badge" id="user-badge">VIP Member</span>
+            </div>
+            <hr class="dropdown-divider">
+            <a href="#mylist-section" class="dropdown-item"><i class="fa-solid fa-bookmark"></i> My List</a>
+            <a href="#addons-section" class="dropdown-item"><i class="fa-solid fa-puzzle-piece"></i> Installed Addons</a>
+            <a href="#admin-panel-section" class="dropdown-item admin-only" id="dropdown-admin-link" style="display: none;"><i class="fa-solid fa-shield-halved"></i> Admin Panel</a>
+            <hr class="dropdown-divider">
+            <button class="dropdown-item text-danger" id="btn-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main View Container -->
+  <div id="main-view">
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="container hero-container">
+        <div class="app-badge">
+          <img src="../imgs/appicon.png" alt="MEEM Logo" class="badge-icon">
+          <span>MODULAR MEDIA UTILITY</span>
+        </div>
+        <h1 class="hero-title">
+          Play Media <span class="text-gradient">Your Way</span>.
+        </h1>
+        <p class="hero-subtitle">
+          MEEM is a versatile media player utility built for Windows and Android. You choose how it works by adding the extensions and sources you want.
+        </p>
+        <div class="hero-cta">
+          <a href="https://github.com/amromotaw3/MEEM/releases" target="_blank" class="btn btn-primary">
+            <i class="fa-brands fa-windows"></i> Download Windows
+          </a>
+          <a href="https://github.com/amromotaw3/MEEM/releases" target="_blank" class="btn btn-secondary">
+            <i class="fa-brands fa-android"></i> Download Android
+          </a>
+          <a href="#pricing" class="btn btn-vip">
+            <i class="fa-solid fa-crown"></i> Get VIP
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">CUSTOMIZABLE PLAYER</span>
+          <h2 class="section-title">Built for Freedom and Control</h2>
+          <p class="section-subtitle">Everything you need from a modern media player, with zero unwanted clutter.</p>
+        </div>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <i class="fa-solid fa-play"></i>
+            </div>
+            <h3 class="feature-title">Universal Playback Engine</h3>
+            <p class="feature-desc">Smooth hardware-accelerated playback for 4K, HDR, HEVC, and AV1 video formats with sub-second response times.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <i class="fa-solid fa-puzzle-piece"></i>
+            </div>
+            <h3 class="feature-title">Modular Add-on Architecture</h3>
+            <p class="feature-desc">Connect the scrapers, stream resolvers, IPTV playlists, or radio feeds you prefer. You decide what addons to install.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon-wrap">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <h3 class="feature-title">Cloud Profiles & Sync</h3>
+            <p class="feature-desc">Keep your custom addons, watch progress, and saved lists synchronized seamlessly between your PC and mobile device.</p>
+          </div>
+        </div>
+
+        <!-- Content & Addon Disclaimer Box -->
+        <div style="margin-top: 48px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 28px 32px; max-width: 900px; margin-left: auto; margin-right: auto;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <i class="fa-solid fa-shield-halved" style="color: #a1a1aa; font-size: 18px;"></i>
+            <h3 style="font-size: 16px; font-weight: 700; color: #ffffff; margin: 0; text-transform: uppercase; letter-spacing: 0.05em;">Content & Add-on Disclaimer</h3>
+          </div>
+          <p style="font-size: 14px; color: #8e8e93; line-height: 1.7; margin: 0;">
+            MEEM is strictly a local and network media player shell and modular add-on platform. MEEM does not create, host, index, or distribute any media streams, files, or copyrighted content. All content viewed or streamed within the player is loaded via third-party add-ons selected and configured solely by the user. Users are entirely responsible for ensuring their usage complies with all applicable laws and regulations.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIP Pricing Section -->
+    <section class="vip-section" id="pricing">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">UPGRADE YOUR EXPERIENCE</span>
+          <h2 class="section-title">MEEM VIP Access</h2>
+          <p class="section-subtitle">Unlock cloud syncing across devices, fast metadata scraping, and priority support.</p>
+        </div>
+
+        <div class="pricing-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto;">
+          <!-- 1 Month Tier -->
+          <div class="pricing-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+            <div>
+              <span style="font-size: 13px; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Monthly Plan</span>
+              <div style="margin: 20px 0;">
+                <span style="font-size: 38px; font-weight: 900; color: #fff;">$5.07</span>
+                <span style="color: #a1a1aa; font-size: 15px;"> / mo</span>
+              </div>
+              <p style="font-size: 13px; color: #71717a; margin-bottom: 24px;">≈ 19.00 SAR / month</p>
+              
+              <ul style="list-style: none; padding: 0; margin: 0 0 30px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #d4d4d8;">
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Cloud Library & Addon Sync</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Up to 3 Linked Devices</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> High-Speed Metadata Cache</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> VIP Community Role</li>
+              </ul>
+            </div>
+            
+            <a href="https://3mromotawa.gumroad.com/l/MEEMVIP" target="_blank" class="btn btn-secondary" style="justify-content: center; width: 100%;">
+              Get Monthly Pass
+            </a>
+          </div>
+
+          <!-- 6 Months Pass -->
+          <div class="pricing-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+            <div>
+              <span style="font-size: 13px; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">6 Months Pass</span>
+              <div style="margin: 20px 0;">
+                <span style="font-size: 38px; font-weight: 900; color: #fff;">$30.42</span>
+                <span style="color: #a1a1aa; font-size: 15px;"> / 6 mos</span>
+              </div>
+              <p style="font-size: 13px; color: #71717a; margin-bottom: 24px;">≈ 114.00 SAR ($5.07/mo)</p>
+              
+              <ul style="list-style: none; padding: 0; margin: 0 0 30px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #d4d4d8;">
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Everything in Monthly</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Up to 5 Linked Devices</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Extended 6-Month Activation</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Priority Feature Access</li>
+              </ul>
+            </div>
+            
+            <a href="https://3mromotawa.gumroad.com/l/MEEMVIP" target="_blank" class="btn btn-secondary" style="justify-content: center; width: 100%;">
+              Get 6-Month Pass
+            </a>
+          </div>
+
+          <!-- 1 Year Plan (Featured) -->
+          <div class="pricing-card featured" style="background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 20px; padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
+            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #ffffff; color: #000; font-size: 11px; font-weight: 800; padding: 4px 14px; border-radius: 20px; letter-spacing: 0.05em; text-transform: uppercase;">
+              Best Value
+            </div>
+            <div>
+              <span style="font-size: 13px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em;">1 Year Plan</span>
+              <div style="margin: 20px 0;">
+                <span style="font-size: 38px; font-weight: 900; color: #fff;">$60.84</span>
+                <span style="color: #a1a1aa; font-size: 15px;"> / year</span>
+              </div>
+              <p style="font-size: 13px; color: #71717a; margin-bottom: 24px;">≈ 228.00 SAR ($5.07/mo)</p>
+              
+              <ul style="list-style: none; padding: 0; margin: 0 0 30px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #d4d4d8;">
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Full VIP Cloud Access</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Up to 5 Linked Devices</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Full 12 Months Support</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Exclusive Discord VIP Perks</li>
+              </ul>
+            </div>
+            
+            <a href="https://3mromotawa.gumroad.com/l/MEEMVIP" target="_blank" class="btn btn-primary" style="justify-content: center; width: 100%;">
+              Get 1-Year Pass
+            </a>
+          </div>
+        </div>
+
+        <!-- Trust Badges -->
+        <div style="display: flex; justify-content: center; gap: 36px; margin-top: 48px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 10px; color: #a1a1aa; font-size: 14px;">
+            <i class="fa-solid fa-lock" style="color: #ffffff;"></i>
+            <span>Secure Checkout via Gumroad</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; color: #a1a1aa; font-size: 14px;">
+            <i class="fa-solid fa-bolt" style="color: #ffffff;"></i>
+            <span>Instant License Key Delivery</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; color: #a1a1aa; font-size: 14px;">
+            <i class="fa-solid fa-desktop" style="color: #ffffff;"></i>
+            <span>Windows & Android Compatible</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- My List Section -->
+    <section class="mylist-section" id="mylist-section" style="display: none; padding: 120px 0 80px;">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">YOUR LIBRARY</span>
+          <h2 class="section-title">My Saved List</h2>
+          <p class="section-subtitle">Media items synced with your MEEM account.</p>
+        </div>
+        <div class="mylist-grid" id="mylist-grid">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="empty-state" id="mylist-empty" style="display: none; text-align: center; padding: 60px 0;">
+          <i class="fa-regular fa-bookmark" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 20px;"></i>
+          <h3>Your list is empty</h3>
+          <p style="color: var(--text-secondary);">Save items from MEEM App or Addons to see them here.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Addons Section -->
+    <section class="addons-section" id="addons-section" style="display: none; padding: 120px 0 80px;">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">EXTENSIONS</span>
+          <h2 class="section-title">Official & Community Addons</h2>
+          <p class="section-subtitle">Enhance your playback experience with verified scrapers and extensions.</p>
+        </div>
+        <div class="addons-grid" id="addons-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Admin Panel Section -->
+    <section class="admin-panel" id="admin-panel-section" style="display: none; padding: 120px 0 80px;">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">ADMINISTRATION</span>
+          <h2 class="section-title">MEEM Master Dashboard</h2>
+          <p class="section-subtitle">Manage users, subscriptions, addons, and system status.</p>
+        </div>
+        
+        <div class="admin-tabs-nav" style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
+          <button class="admin-tab-btn active" data-target="users-tab"><i class="fa-solid fa-users"></i> Users & Roles</button>
+          <button class="admin-tab-btn" data-target="addons-tab"><i class="fa-solid fa-puzzle-piece"></i> Manage Addons</button>
+        </div>
+
+        <div class="admin-tab-contents">
+          <!-- Users Tab -->
+          <div class="admin-tab-content active" id="users-tab">
+            <div class="admin-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="background: none; -webkit-text-fill-color: initial; color: #fff;">User Management</h3>
+                <input type="text" id="user-search-input" placeholder="Search users..." style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 14px; outline: none;">
+              </div>
+              <div class="admin-table-container" style="overflow-x: auto;">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Max Devices</th>
+                      <th>Subscription Expiry</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="users-table-body">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Addons Tab -->
+          <div class="admin-tab-content" id="addons-tab">
+            <div class="admin-grid-layout" style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 30px;">
+              <!-- Add Addon Form -->
+              <div class="admin-card">
+                <h3 style="background: none; -webkit-text-fill-color: initial; color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">Add MEEM Addon</h3>
+                <form id="add-addon-form">
+                  <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="addon-manifest-url" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Manifest JSON URL</label>
+                    <div style="display: flex; gap: 10px;">
+                      <input type="url" id="addon-manifest-url" class="form-control" placeholder="https://addon-domain/manifest.json" required style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                      <button type="button" class="btn btn-secondary" id="btn-fetch-addon" style="padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;">Fetch</button>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="addon-name" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Addon Name</label>
+                    <input type="text" id="addon-name" class="form-control" placeholder="Fetched automatically or type here" required style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="addon-description" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Description</label>
+                    <textarea id="addon-description" class="form-control" placeholder="Fetched automatically or type here" rows="3" style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+                  </div>
+                  
+                  <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="addon-logo-url" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Logo / Icon URL</label>
+                    <input type="url" id="addon-logo-url" class="form-control" placeholder="Fetched automatically or type image URL" style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; border-radius: 12px;">Add Addon</button>
+                </form>
+              </div>
+              
+              <!-- Addons List -->
+              <div class="admin-card">
+                <h3 style="background: none; -webkit-text-fill-color: initial; color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">Active Addons</h3>
+                <div class="admin-addons-list" id="admin-addons-list" style="display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 5px;">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Auth Modal -->
+    <div class="auth-overlay" id="auth-modal" style="display: none;">
+      <div class="auth-card">
+        <button class="auth-close-btn" id="auth-close-btn"><i class="fa-solid fa-times"></i></button>
+        <div class="auth-brand">
+          <img src="../imgs/appicon.png" alt="MEEM Logo" class="auth-logo-img" style="width: 60px; height: 60px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);">
+          <h2 class="auth-title" id="auth-modal-title">Welcome to MEEM</h2>
+          <p class="auth-subtitle" id="auth-modal-subtitle">Sign in to sync your library, manage your private vault, and explore addons.</p>
+        </div>
+        <div class="auth-tabs" id="auth-tabs">
+          <button class="auth-tab active" data-mode="login">Sign In</button>
+          <button class="auth-tab" data-mode="register">Create Account</button>
+        </div>
+        <form id="auth-form">
+          <div class="auth-field" id="auth-username-field" style="display: none;">
+            <label class="auth-label" for="auth-username">Username</label>
+            <div class="auth-input-wrap">
+              <i class="fa-regular fa-user"></i>
+              <input type="text" id="auth-username" class="auth-input" placeholder="Your username">
+            </div>
+          </div>
+          <div class="auth-field">
+            <label class="auth-label" for="auth-email">Email</label>
+            <div class="auth-input-wrap">
+              <i class="fa-regular fa-envelope"></i>
+              <input type="email" id="auth-email" class="auth-input" placeholder="you@example.com" required>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label class="auth-label" for="auth-password">Password</label>
+            <div class="auth-input-wrap">
+              <i class="fa-solid fa-lock"></i>
+              <input type="password" id="auth-password" class="auth-input" placeholder="••••••••" required>
+            </div>
+          </div>
+          <button type="submit" class="auth-submit" id="auth-submit-btn">Sign In</button>
+        </form>
+        <form id="auth-otp-form" style="display: none;">
+          <div class="auth-field">
+            <label class="auth-label" for="auth-otp-code">Verification Code</label>
+            <div class="auth-input-wrap">
+              <i class="fa-solid fa-key"></i>
+              <input type="text" id="auth-otp-code" class="auth-input" placeholder="6-digit code" required>
+            </div>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Enter the code we sent to your email.</p>
+          </div>
+          <button type="submit" class="auth-submit" id="auth-otp-submit-btn">Verify & Login</button>
+        </form>
+        <div style="margin-top: 15px; border-top: 1px solid var(--glass-border); padding-top: 15px; display: flex; gap: 10px;">
+          <button id="oauth-google" class="oauth-btn oauth-google"><i class="fa-brands fa-google"></i> Google</button>
+          <button id="oauth-discord" class="oauth-btn oauth-discord"><i class="fa-brands fa-discord"></i> Discord</button>
+        </div>
+        <button type="button" id="btn-auth-back" class="btn-auth-back">Back</button>
+        <div class="auth-msg" id="auth-msg"></div>
+      </div>
+    </div>
+
+    <!-- Edit User Modal (Admin only) -->
+    <div class="auth-overlay" id="edit-user-modal" style="display: none;">
+      <div class="auth-card" style="max-width: 500px;">
+        <button class="auth-close-btn" id="edit-user-close-btn"><i class="fa-solid fa-times"></i></button>
+        <div class="auth-brand" style="margin-bottom: 20px;">
+          <h2 class="auth-title">Edit User Account</h2>
+          <p class="auth-subtitle" id="edit-user-email" style="color: var(--accent); font-weight: 600; margin-top: 5px;"></p>
+        </div>
+        <form id="edit-user-form">
+          <input type="hidden" id="edit-user-id">
+          
+          <div class="auth-field">
+            <label class="auth-label" for="edit-user-role">Account Role</label>
+            <div class="auth-input-wrap">
+              <i class="fa-solid fa-user-shield"></i>
+              <select id="edit-user-role" class="auth-input" style="background: #111; color: #fff;">
+                <option value="free">Free Member</option>
+                <option value="vip">VIP Member</option>
+                <option value="admin">System Admin</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="edit-user-devices">Max Linked Devices</label>
+            <div class="auth-input-wrap">
+              <i class="fa-solid fa-desktop"></i>
+              <input type="number" id="edit-user-devices" class="auth-input" min="1" max="20" value="3" required>
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="edit-user-expiry">Subscription Expiry Date</label>
+            <div class="auth-input-wrap">
+              <i class="fa-regular fa-calendar"></i>
+              <input type="datetime-local" id="edit-user-expiry" class="auth-input" style="color-scheme: dark;">
+            </div>
+            <p style="font-size: 11px; color: var(--text-secondary); margin-top: 5px;">Leave blank for lifetime or non-VIP access.</p>
+          </div>
+
+          <button type="submit" class="auth-submit" style="margin-top: 20px;">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Ban User Modal (Admin only) -->
+    <div class="auth-overlay" id="ban-user-modal" style="display: none;">
+      <div class="auth-card" style="max-width: 450px;">
+        <button class="auth-close-btn" id="ban-user-close-btn"><i class="fa-solid fa-times"></i></button>
+        <div class="auth-brand" style="margin-bottom: 20px;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; color: #ef4444; margin-bottom: 10px;"></i>
+          <h2 class="auth-title">Ban User Account</h2>
+          <p class="auth-subtitle" id="ban-user-email" style="color: #ef4444; font-weight: 600;"></p>
+        </div>
+        <form id="ban-user-form">
+          <input type="hidden" id="ban-user-id">
+          
+          <div class="auth-field">
+            <label class="auth-label" for="ban-user-reason">Reason for Suspension</label>
+            <div class="auth-input-wrap">
+              <i class="fa-solid fa-comment-dots"></i>
+              <input type="text" id="ban-user-reason" class="auth-input" placeholder="e.g., Terms of service violation" required>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-ban" style="flex: 1; justify-content: center;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center; background: #ef4444; border-color: #ef4444;">Confirm Ban</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <div class="container footer-container">
+        <div class="footer-brand">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <img src="../imgs/appicon.png" alt="MEEM Logo" class="footer-logo">
+            <span style="font-weight: 800; font-size: 16px; letter-spacing: 0.05em; color: #fff;">MEEM</span>
+          </div>
+          <p class="footer-desc">Modular media player utility for Windows and Android.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h4>Pages</h4>
+            <a href="../">Home</a>
+            <a href="#hero">MEEM App</a>
+            <a href="../community/">Community</a>
+          </div>
+          <div class="footer-col">
+            <h4>MEEM App</h4>
+            <a href="#features">Features</a>
+            <a href="#pricing">VIP Pricing</a>
+            <a href="https://github.com/amromotaw3/MEEM/releases" target="_blank">Download</a>
+          </div>
+          <div class="footer-col">
+            <h4>Connect</h4>
+            <a href="https://discord.gg/meem" target="_blank"><i class="fa-brands fa-discord"></i> Discord</a>
+            <a href="https://github.com/amromotaw3/MEEM" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 MEEM. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="../script.js"></script>
+</body>
+</html>

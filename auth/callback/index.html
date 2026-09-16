@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -13,17 +13,19 @@
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
   <style>
     :root {
-      --bg-base: #050508;
-      --bg-surface: #0d0d14;
+      --bg-base: #000000;
+      --bg-surface: #0c0c12;
       --accent: #ffffff;
-      --accent-glow: rgba(255, 255, 255, 0.25);
-      --glass-border: rgba(255, 255, 255, 0.14);
+      --glass-border: rgba(255, 255, 255, 0.15);
       --text-primary: #ffffff;
       --text-secondary: #a1a1aa;
-      --radius-lg: 24px;
-      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-md: 12px;
     }
 
     * {
@@ -34,109 +36,53 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
-      background-color: var(--bg-base);
-      color: var(--text-primary);
+      background-color: #000000;
+      color: #ffffff;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
-      position: relative;
+      padding: 20px;
     }
 
-    /* ═══ Ambient Glowing Orbs ═══ */
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 0.22; transform: scale(1); }
-      50% { opacity: 0.38; transform: scale(1.05); }
-    }
-    .ambient-glow {
-      position: absolute;
-      border-radius: 9999px;
-      filter: blur(90px);
-      pointer-events: none;
-      animation: pulseGlow 7s ease-in-out infinite;
-    }
-
-    /* ═══ Glass Card Container ═══ */
+    /* ═══ Clean Card Container ═══ */
     .card-container {
-      position: relative;
-      z-index: 10;
       width: 100%;
-      max-width: 480px;
-      padding: 44px 32px;
-      background: rgba(13, 13, 20, 0.85);
-      border: 1px solid var(--glass-border);
+      max-width: 440px;
+      padding: 40px 32px;
+      background: #09090d;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: var(--radius-lg);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      animation: cardSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes cardSlideUp {
-      from {
-        opacity: 0;
-        transform: translateY(24px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* ═══ Icon & Success Animations ═══ */
     .success-icon-wrapper {
-      position: relative;
-      width: 84px;
-      height: 84px;
-      margin-bottom: 22px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 20px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .success-ring {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1.5px solid rgba(255, 255, 255, 0.25);
-      animation: ringPulse 2.2s infinite ease-out;
-    }
-
     .success-icon {
-      font-size: 32px;
+      font-size: 24px;
       color: #ffffff;
-      text-shadow: 0 0 15px var(--accent-glow);
-      z-index: 2;
     }
 
-    @keyframes ringPulse {
-      0% {
-        transform: scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1.3);
-        opacity: 0;
-      }
-    }
-
-    /* ═══ Typography ═══ */
     h1 {
-      font-size: 26px;
+      font-size: 22px;
       font-weight: 800;
-      margin-bottom: 10px;
       letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #ffffff 0%, #d4d4d8 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      color: #ffffff;
     }
 
     p {
@@ -146,72 +92,63 @@
       margin-bottom: 24px;
     }
 
-    /* ═══ Sync status ═══ */
+    /* ═══ Status Badge ═══ */
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--glass-border);
       border-radius: 9999px;
       font-size: 13px;
-      color: var(--text-primary);
-      margin-bottom: 22px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 24px;
     }
 
     .status-dot {
       width: 8px;
       height: 8px;
+      background: #ffffff;
       border-radius: 50%;
-      background: #34d399;
-      box-shadow: 0 0 10px #34d399;
-      animation: dotPulse 1.5s infinite ease-in-out;
     }
 
-    @keyframes dotPulse {
-      0%, 100% { transform: scale(1); opacity: 0.5; }
-      50% { transform: scale(1.3); opacity: 1; }
-    }
-
-    /* ═══ Fallback Action Buttons ═══ */
+    /* ═══ Action Buttons ═══ */
     .btn-group {
-      width: 100%;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      width: 100%;
     }
 
     .action-btn {
       width: 100%;
       padding: 14px;
       background: #ffffff;
-      border: 1px solid #ffffff;
       color: #000000;
-      font-weight: 800;
+      font-weight: 700;
       font-size: 14px;
       border-radius: var(--radius-md);
+      border: 1px solid #ffffff;
       cursor: pointer;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25);
+      gap: 8px;
+      transition: opacity 0.2s ease;
     }
 
     .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
-      background: #fafafa;
+      opacity: 0.9;
     }
 
     .secondary-btn {
       width: 100%;
       padding: 12px;
       background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: #ffffff;
       font-weight: 600;
       font-size: 13px;
@@ -222,34 +159,25 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: all 0.2s ease;
     }
 
     .secondary-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .footer-note {
       font-size: 12px;
       color: #71717a;
-      margin-top: 20px;
+      margin-top: 18px;
       line-height: 1.4;
     }
   </style>
 </head>
 <body>
 
-  <!-- Ambient Light Orbs -->
-  <div style="position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none;">
-    <div class="ambient-glow" style="width:480px;height:480px;background:#ffffff;top:-100px;left:50%;transform:translateX(-50%);"></div>
-    <div class="ambient-glow" style="width:360px;height:360px;background:#64748b;bottom:-40px;right:-40px;"></div>
-  </div>
-
   <!-- Content Card -->
   <div class="card-container">
     <div class="success-icon-wrapper">
-      <div class="success-ring"></div>
       <div class="success-icon"><i class="fa-solid fa-check"></i></div>
     </div>
     
@@ -262,14 +190,14 @@
     <!-- Connection Status Badge -->
     <div class="status-badge" id="status-container">
       <div class="status-dot"></div>
-      <span id="status-text">Returning to MEEM...</span>
+      <span id="status-text">Redirecting to MEEM...</span>
     </div>
 
-    <!-- Fallback Action Buttons -->
+    <!-- Action Buttons -->
     <div class="btn-group">
       <a href="#" id="manual-link" class="action-btn">
         <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        <span>Open MEEM App</span>
+        <span id="manual-link-text">Open MEEM</span>
       </a>
 
       <button type="button" id="copy-token-btn" class="secondary-btn">
@@ -278,15 +206,16 @@
       </button>
     </div>
 
-    <div class="footer-note">
-      If the app didn't open automatically, click <strong>Open MEEM App</strong> or copy the token and return to MEEM.
+    <div class="footer-note" id="footer-note">
+      If not redirected automatically, click <strong>Open MEEM</strong> to continue.
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       const statusText = document.getElementById('status-text');
       const manualLink = document.getElementById('manual-link');
+      const manualLinkText = document.getElementById('manual-link-text');
       const copyTokenBtn = document.getElementById('copy-token-btn');
       const copyTokenText = document.getElementById('copy-token-text');
 
@@ -314,7 +243,7 @@
       if (errorCode || errorDesc) {
         const msg = errorDesc ? errorDesc.replace(/\+/g, ' ') : errorCode;
         statusText.innerText = 'Authentication Failed: ' + msg;
-        document.querySelector('.status-dot').style.cssText = 'background:#ef4444;box-shadow:0 0 10px #ef4444';
+        document.querySelector('.status-dot').style.background = '#ef4444';
         document.querySelector('h1').innerText = 'Authentication Failed';
         document.querySelector('.success-icon').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444"></i>';
         manualLink.style.display = 'none';
@@ -325,28 +254,85 @@
       const code        = params.get('code');
       const accessToken = params.get('access_token');
       const refreshToken= params.get('refresh_token') || '';
+      const source      = params.get('source') || '';
       const relayId     = params.get('relay_id') || params.get('auth_session_id');
 
+      // Initialize Supabase Client to store token in localStorage
+      let supabaseClient = null;
+      try {
+        if (window.supabase) {
+          supabaseClient = supabase.createClient("https://vvjnkgdrhyxilnderjdy.supabase.co", "sb_publishable_hCdzzszncTGjIBGZYuoTNg_LZSnuHAw", {
+            auth: {
+              persistSession: true,
+              autoRefreshToken: true,
+              detectSessionInUrl: true,
+              storageKey: "supabase.auth.token"
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('Supabase init error:', e);
+      }
+
+      if (supabaseClient && accessToken) {
+        try {
+          await supabaseClient.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || ''
+          });
+        } catch (e) {
+          console.warn('SetSession error:', e);
+        }
+      }
+
       if (!code && !accessToken) {
-        statusText.innerText = 'No authentication token found. Please try again.';
-        document.querySelector('.status-dot').style.cssText = 'background:#ef4444;box-shadow:0 0 10px #ef4444';
+        statusText.innerText = 'No authentication token found.';
+        document.querySelector('.status-dot').style.background = '#ef4444';
         manualLink.style.display = 'none';
         copyTokenBtn.style.display = 'none';
         return;
       }
 
-      // Notify mobile auth relay immediately via Supabase RPC
+      // Check if from web browser
+      const isWeb = source.toLowerCase() === 'web' || (!relayId && !/electron|meem_app/i.test(navigator.userAgent || ''));
+
+      if (isWeb) {
+        statusText.innerText = 'Redirecting to MEEM...';
+        manualLinkText.innerText = 'Return to MEEM';
+        manualLink.href = '../../player/';
+        
+        if (window.opener && !window.opener.closed) {
+          try {
+            window.opener.postMessage({
+              type: 'MEEM_AUTH_SUCCESS',
+              access_token: accessToken,
+              refresh_token: refreshToken
+            }, '*');
+          } catch (_) {}
+        }
+
+        setTimeout(() => {
+          window.location.href = '../../player/';
+        }, 800);
+
+        copyTokenBtn.addEventListener('click', () => {
+          window.location.href = '../../player/';
+        });
+        return;
+      }
+
+      // Mobile / Desktop deep link logic
       if (relayId && (accessToken || code)) {
         try {
           const SUPABASE_URL = 'https://vvjnkgdrhyxilnderjdy.supabase.co';
           const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2am5rZ2RyaHl4aWxuZGVyamR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTM2ODEsImV4cCI6MjA5NDg4OTY4MX0.Rb1OLJGXDToYZz-8h_gy2UNx_ou0P6BwGXc1ExFWSCU';
-          fetch(`${SUPABASE_URL}/rest/v1/rpc/complete_mobile_auth_relay`, {
+          fetch(${SUPABASE_URL}/rest/v1/rpc/complete_mobile_auth_relay, {
             method: 'POST',
             keepalive: true,
             headers: {
               'Content-Type': 'application/json',
               'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`
+              'Authorization': Bearer 
             },
             body: JSON.stringify({
               p_relay_id: relayId,
@@ -354,9 +340,7 @@
               p_refresh_token: refreshToken || '',
               p_user_id: null
             })
-          }).then(r => r.json()).then(res => {
-            console.log('[AUTH] Mobile relay signaled successfully:', res);
-          }).catch(err => console.warn('[AUTH] Mobile relay error:', err));
+          }).catch(() => {});
         } catch (_) {}
       }
 
@@ -374,12 +358,10 @@
 
       const isAndroid = /android/i.test(navigator.userAgent || '');
       const deepLinkMeem = 'meem://auth/callback' + deepLinkFragment;
-      // Properly format Intent URI for Android without duplicate hash tags
       const queryOrHash = deepLinkFragment.startsWith('?') ? deepLinkFragment.substring(1) : (deepLinkFragment.startsWith('#') ? deepLinkFragment.substring(1) : deepLinkFragment);
       const intentUri = 'intent://auth/callback?' + queryOrHash + '#Intent;scheme=meem;package=com.meem.app;end;';
       const tokenToCopy = deepLinkMeem;
 
-      // Automatically copy deep link / token to clipboard on page load so MEEM can detect it when resumed
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(tokenToCopy).catch(() => {});
@@ -387,21 +369,9 @@
       } catch (_) {}
 
       manualLink.href = isAndroid ? intentUri : deepLinkMeem;
-      manualLink.addEventListener('click', (e) => {
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(tokenToCopy).catch(() => {});
-          }
-        } catch (_) {}
-        if (isAndroid) {
-          setTimeout(() => {
-            try { window.location.href = intentUri; } catch (_) {}
-          }, 300);
-        }
-      });
+      manualLinkText.innerText = 'Open MEEM App';
 
       if (isAndroid) {
-        // Use intentUri on Android as Chrome treats intent:// as the standard package launch protocol
         try {
           window.location.href = intentUri;
         } catch (_) {

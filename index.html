@@ -3,547 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MEEM — Play Anything. Anytime.</title>
-  <meta name="description" content="MEEM is a cross-platform local media player utility. Organize your local files, load custom network streams, manage your library with smart metadata, and enhance your viewing experience — on Windows and Android.">
+  <title>MEEM — Personal Projects & Community</title>
+  <meta name="description" content="Personal projects by Amro Motawa: MEEM Player (cross-platform media player utility) and MEEM Community (Discord & FiveM roleplay).">
   <meta name="robots" content="index, follow">
-  
-  <!-- Fonts -->
+  <link rel="canonical" href="https://meem.net/">
+
+  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="imgs/favicon.ico">
-  
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
-  <!-- Supabase JS Library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+  
 
   <!-- Navigation Bar -->
   <nav class="main-nav">
     <div class="container nav-container">
-      <div class="nav-brand" id="nav-brand" style="cursor: pointer;">
+      <div class="nav-brand" style="cursor: pointer;" onclick="window.location.href='./'">
         <img src="imgs/appicon.png" alt="MEEM Logo" class="nav-logo">
-        <span>MEEM</span>
+        <img src="imgs/MEEM.png" alt="MEEM" class="nav-brand-text-logo">
       </div>
-      <div class="nav-links" id="nav-links">
-        <a href="#hero">Home</a>
-        <a href="#features">Features</a>
-        <a href="#pricing">VIP Pricing</a>
-        <a href="#mylist-section" id="nav-mylist-link">My List</a>
-        <a href="#addons-section" id="nav-addons-link" style="display: none;">Addons</a>
-        <a href="#admin-panel-section" id="nav-admin-link" style="display: none;">Admin Panel</a>
+      <div class="nav-links">
+        <a href="./" style="color: #ffffff;">Home</a>
+        <a href="player/">MEEM App</a>
+        <a href="community/">Community</a>
       </div>
-      <div class="nav-auth" id="nav-auth-container">
-        <button class="btn-nav-primary" id="btn-login-nav">Sign In</button>
+      <div class="nav-auth">
+        <a href="https://github.com/amromotaw3/MEEM" target="_blank" class="btn-nav-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+          <i class="fa-brands fa-github"></i> GitHub
+        </a>
       </div>
     </div>
   </nav>
 
-  <!-- Ambient Light Orbs -->
-  <div class="background-canvas">
-    <div class="ambient-glow" style="width: 500px; height: 500px; background: #ffffff; top: -100px; left: 50%; transform: translateX(-50%);"></div>
-    <div class="ambient-glow" style="width: 420px; height: 420px; background: #64748b; bottom: -60px; right: -60px;"></div>
-  </div>
-
   <!-- Hero Section -->
-  <section class="hero" id="hero">
-    <div class="container hero-container">
-      <div class="hero-content">
-        <div class="app-badge">
-          <img src="imgs/appicon.png" alt="MEEM Logo" class="badge-icon">
-          <span id="app-version-badge">MEEM V3.8.0 IS HERE</span>
-        </div>
-        <h1 class="hero-title">The Ultimate Cross-Platform<br>Media Player Utility</h1>
-        <p class="hero-subtitle">
-          Organize your local files, load your custom network streams, and enhance your viewing experience with community-built UI tools in one sleek interface.
-        </p>
-        
-        <div class="hero-actions">
-          <a href="https://github.com/amromotaw3/MEEM-Landing/releases/download/v3.8.0/MEEM-Setup-3.8.0.exe" class="btn btn-primary download-link" id="download-win">
-            <i class="fa-brands fa-windows"></i> Download for Windows (v3.8.0)
-          </a>
-          <a href="https://github.com/amromotaw3/MEEM-Landing/releases/download/v3.8.0/MEEM-3.8.0.apk" class="btn btn-secondary download-link" id="download-android">
-            <i class="fa-brands fa-android"></i>
-            Download for Android
-          </a>
-        </div>
+  <section class="hero" style="padding: 160px 0 60px; text-align: center;">
+    <div class="container hero-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div class="app-badge" style="margin-bottom: 24px;">
+        <img src="imgs/appicon.png" alt="MEEM Logo" class="badge-icon">
+        <span>PROJECTS & COMMUNITY BY AMRO MOTAWA</span>
       </div>
-      
-      <div class="hero-visual">
-        <div class="dashboard-showcase">
-          <div class="showcase-glow"></div>
-          
-          <div class="showcase-screen" id="showcase-screen">
-            <!-- Desktop Screen View -->
-            <div class="screen-view active" id="view-desktop">
-              <!-- TODO: Replace with compliance-safe images (e.g., Big Buck Bunny or generic local file structures). NO copyrighted posters or TV network logos. -->
-              <img src="imgs/Screenshot 2026.png" id="app-screenshot" alt="MEEM Desktop Interface — Local Media Library" class="app-screenshot">
-              <div class="screen-reflection"></div>
-            </div>
-            
-            <!-- Mobile Screen View -->
-            <div class="screen-view" id="view-mobile" style="display: none;">
-              <div class="mobile-frame-container">
-                <!-- TODO: Replace with compliance-safe images (e.g., Big Buck Bunny or generic local file structures). NO copyrighted posters or TV network logos. -->
-                <img src="imgs/mobile_image.png" alt="MEEM Mobile Interface — Local Media Library" class="mobile-screenshot">
-                <div class="screen-reflection"></div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- decorative visuals removed to simplify hero -->
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section class="features" id="features">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Everything You Need. One App.</h2>
-        <p class="section-desc">MEEM combines a powerful local media player, smart library management, and an extensible UI toolkit into a single cross-platform experience.</p>
-      </div>
-
-      <div class="features-grid">
-        
-        <!-- Feature 1: Video Player -->
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-play"></i></div>
-          <span class="feature-tag">Player</span>
-          <h3 class="feature-title">Built-in Video Player</h3>
-          <p class="feature-text">A high-performance media player supporting subtitles, multiple audio tracks, playback speed control, and picture-in-picture mode.</p>
-        </div>
-
-        <!-- Feature 2: Custom Network Streams -->
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-network-wired"></i></div>
-          <span class="feature-tag">Streams</span>
-          <h3 class="feature-title">Custom Network Streams</h3>
-          <p class="feature-text">Easily load and manage your own network stream links with our advanced parser. Point the app at any stream URL you own or subscribe to.</p>
-        </div>
-
-        <!-- Feature 3: Audio Stream Integration -->
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-headphones"></i></div>
-          <span class="feature-tag">Audio</span>
-          <h3 class="feature-title">Audio Stream Integration</h3>
-          <p class="feature-text">Load and play audio streams from any source. Browse by country and genre — all from your own stream links.</p>
-        </div>
-
-        <!-- Feature 4: Add-on Extensions -->
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
-          <span class="feature-tag">Add-ons</span>
-          <h3 class="feature-title">Community UI Extensions</h3>
-          <p class="feature-text">Install community-built UI add-ons to extend the player's interface, connect metadata resolvers, and enrich your local library view.</p>
-        </div>
-
-        <!-- Feature 5: Local Media Management -->
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-folder-open"></i></div>
-          <span class="feature-tag">Library</span>
-          <h3 class="feature-title">Local Media Management</h3>
-          <p class="feature-text">Scan and organize your local movie and series folders. Automatically matches files with TMDB metadata, posters, and rich descriptions.</p>
-        </div>
-
-        <!-- Feature 6: Cross-Platform Sync -->
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-rotate"></i></div>
-          <span class="feature-tag">Sync</span>
-          <h3 class="feature-title">Cross-Platform Sync</h3>
-          <p class="feature-text">Your watch progress, watchlist, and preferences sync seamlessly between Windows and Android so you always pick up where you left off.</p>
-        </div>
-
-        <!-- Feature 7: Private Vault -->
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-lock"></i></div>
-          <span class="feature-tag">Vault</span>
-          <h3 class="feature-title">Private Vault</h3>
-          <p class="feature-text">Secure personal media folders and files behind a PIN-protected vault, keeping your private content hidden from other users.</p>
-        </div>
-
-        <!-- Feature 8: Multiple Profiles -->
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fa-solid fa-users"></i></div>
-          <span class="feature-tag">Profiles</span>
-          <h3 class="feature-title">Multiple Profiles</h3>
-          <p class="feature-text">Create separate profiles with independent watch histories, settings, and custom avatars — ideal for shared devices.</p>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- VIP Pricing & Gumroad Section -->
-  <section class="vip-section" id="pricing">
-    <div class="container">
-      <div class="vip-eyebrow">
-        <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
-        <span>MEEM VIP UPGRADE</span>
-      </div>
-      <h2 class="vip-title">Choose Your VIP Access</h2>
-      <p class="vip-subtitle">
-        Instant license key delivered immediately via email. Enter it directly inside MEEM to unlock all premium features across all your devices.
+      <h1 class="hero-title" style="max-width: 850px; margin: 0 auto 20px; font-size: clamp(2.3rem, 5vw, 3.8rem); font-weight: 800; line-height: 1.25; letter-spacing: -0.03em;">
+        Welcome to your online <span class="custom-home-wordmark" style="display: inline-block; position: relative; font-weight: 900; letter-spacing: -0.04em;">h<span style="display: inline-block; position: relative;"><svg viewBox="0 0 100 100" style="width: 0.82em; height: 0.82em; vertical-align: -0.06em; fill: none; stroke: #ffffff; stroke-width: 14; stroke-linejoin: round; stroke-linecap: round; display: inline-block;"><path d="M 50 15 L 85 45 L 85 85 L 15 85 L 15 45 Z"/><rect x="38" y="55" width="24" height="30" fill="#ffffff"/></svg></span>me.</span>
+      </h1>
+      <p class="hero-subtitle" style="max-width: 700px; margin: 0 auto 48px; font-size: 1.15rem; line-height: 1.7; color: #a1a1aa; text-align: center;">
+        Here are the Meem apps and our community<br>
+        <span style="color: #ffffff; opacity: 0.92;">Your second family and the apps that organize everything you need.</span>
       </p>
 
-      <div class="pricing-grid">
-        <!-- Monthly Pass -->
-        <div class="pricing-card">
+      <!-- Projects Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; width: 100%; max-width: 1000px; margin-top: 10px; text-align: left;">
+        
+        <!-- MEEM App Card -->
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 36px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s;">
           <div>
-            <div class="pricing-plan-name">Monthly Pass</div>
-            <div class="pricing-price">12.99 <span>SAR / mo</span></div>
-            <div class="pricing-subtext">Renews automatically • Cancel anytime</div>
-
-            <ul class="pricing-features">
-              <li><i class="fa-solid fa-check"></i> Unlimited Offline Downloads</li>
-              <li><i class="fa-solid fa-check"></i> YouTube Audio & Video Downloader</li>
-              <li><i class="fa-solid fa-check"></i> Cross-Device Cloud Sync & Resume</li>
-              <li><i class="fa-solid fa-check"></i> Multi-Profile PIN Protection</li>
-              <li><i class="fa-solid fa-check"></i> Shared Watchlist Collaboration</li>
-            </ul>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff;">
+                <i class="fa-solid fa-play"></i>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #a1a1aa;">v3.8.0</span>
+            </div>
+            <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 12px;">MEEM App</h2>
+            <p style="font-size: 14px; color: #a1a1aa; line-height: 1.6; margin-bottom: 24px;">
+              A personal media utility for Windows and Android. Organize your local library, stream torrents directly, load IPTV playlists, and listen to global radio.
+            </p>
           </div>
-
-          <a href="https://3mromotawa.gumroad.com/l/MEEMVIP" target="_blank" rel="noopener noreferrer" class="btn-gumroad secondary">
-            <span>Get Monthly VIP</span>
-            <i class="fa-solid fa-arrow-right"></i>
+          <a href="player/" class="btn btn-primary" style="text-decoration: none; justify-content: center;">
+            Open MEEM App <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
           </a>
         </div>
 
-        <!-- Yearly Pass (Featured) -->
-        <div class="pricing-card featured">
-          <div class="pricing-badge">Most Popular • Save 25%</div>
-
+        <!-- MEEM Community Card -->
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 36px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, border-color 0.2s;">
           <div>
-            <div class="pricing-plan-name">Yearly Pass</div>
-            <div class="pricing-price">119.99 <span>SAR / yr</span></div>
-            <div class="pricing-subtext">(~9.99 SAR / month • 2 Months Free)</div>
-
-            <ul class="pricing-features">
-              <li><i class="fa-solid fa-check"></i> Everything in Monthly Pass</li>
-              <li><i class="fa-solid fa-check"></i> High-Speed Priority Download Streams</li>
-              <li><i class="fa-solid fa-check"></i> Early Access to New Addon Features</li>
-              <li><i class="fa-solid fa-check"></i> Multi-Device Continuous Cloud Sync</li>
-              <li><i class="fa-solid fa-check"></i> Priority Discord VIP Role & Support</li>
-            </ul>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff;">
+                <i class="fa-solid fa-users"></i>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #a1a1aa;">DISCORD</span>
+            </div>
+            <h2 style="font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 12px;">MEEM Community</h2>
+            <p style="font-size: 14px; color: #a1a1aa; line-height: 1.6; margin-bottom: 24px;">
+              The official MEEM community. Join our Discord server to hang out, share feedback, get updates, and play on our custom FiveM server.
+            </p>
           </div>
-
-          <a href="https://3mromotawa.gumroad.com/l/MEEMVIP" target="_blank" rel="noopener noreferrer" class="btn-gumroad primary">
-            <span>Get Yearly VIP</span>
-            <i class="fa-solid fa-arrow-right"></i>
+          <a href="community/" class="btn btn-secondary" style="text-decoration: none; justify-content: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+            Join Community <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
           </a>
         </div>
-      </div>
 
-      <div class="gumroad-guarantee">
-        <span><i class="fa-solid fa-shield-halved"></i> Official Gumroad Store</span>
-        <span><i class="fa-solid fa-bolt"></i> Instant Key Delivery</span>
-        <span><i class="fa-solid fa-rotate-left"></i> 14-Day Refund Policy</span>
       </div>
     </div>
   </section>
 
-  <!-- My List Section (Only visible when logged in) -->
-  <section class="mylist-section" id="mylist-section" style="display: none; padding: 120px 0 80px;">
-    <div class="container">
-      <div class="mylist-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 35px; flex-wrap: wrap; gap: 20px;">
-        <div>
-          <h1 style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 8px;">My List</h1>
-          <p style="color: var(--text-muted, #94a3b8); font-size: 0.95rem;">Manage your saved movies, TV shows, and watch progress synced from MEEM.</p>
-        </div>
-        <!-- Profile Selector Dropdown -->
-        <div id="mylist-profile-selector-wrap" style="display: none;">
-          <label style="color: var(--text-muted, #94a3b8); font-size: 0.85rem; margin-right: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">PROFILE:</label>
-          <select id="mylist-profile-select" class="mylist-profile-select" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; transition: border-color 0.2s;">
-          </select>
-        </div>
-      </div>
-
-      <!-- Tabs Navigation -->
-      <div class="mylist-tabs" style="display: flex; gap: 12px; margin-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px; overflow-x: auto;">
-        <button class="mylist-tab-btn active" data-tab="watching"><i class="fa-solid fa-play"></i> Continue Watching</button>
-        <button class="mylist-tab-btn" data-tab="watchlist"><i class="fa-solid fa-bookmark"></i> Watchlist</button>
-        <button class="mylist-tab-btn" data-tab="watched"><i class="fa-solid fa-check-circle"></i> Watched</button>
-        <button class="mylist-tab-btn" data-tab="collections"><i class="fa-solid fa-folder-open"></i> Custom Lists</button>
-      </div>
-
-      <!-- Tab Content Panes -->
-      <div class="mylist-content">
-        <div class="mylist-tab-pane active" id="pane-watching">
-          <div class="mylist-grid" id="grid-watching"></div>
-        </div>
-        <div class="mylist-tab-pane" id="pane-watchlist">
-          <div class="mylist-grid" id="grid-watchlist"></div>
-        </div>
-        <div class="mylist-tab-pane" id="pane-watched">
-          <div class="mylist-grid" id="grid-watched"></div>
-        </div>
-        <div class="mylist-tab-pane" id="pane-collections">
-          <div id="container-collections"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Addons Section (Only visible when logged in) -->
-  <section class="addons-section" id="addons-section" style="display: none;">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">MEEM Addons</h2>
-        <p class="section-desc">Unlock unlimited content sources with these compatible addons. Click install to copy or load them directly into your MEEM app.</p>
-      </div>
-      <div class="addons-grid" id="addons-grid">
-        <!-- Addons will be loaded dynamically here -->
-      </div>
-    </div>
-  </section>
-
-  <!-- Admin Panel Section (Only visible to admins) -->
-  <section class="admin-panel" id="admin-panel-section" style="display: none;">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Admin Control Panel</h2>
-        <p class="section-desc">Manage all users, edit subscription validity, max active devices, ban accounts, and manage MEEM Addons.</p>
-      </div>
+  <!-- Why This Page Section -->
+  <section style="padding: 40px 0 80px;">
+    <div class="container" style="max-width: 900px; margin: 0 auto; padding: 0 24px;">
       
-      <div class="admin-container">
-        <div class="admin-sidebar">
-          <button class="admin-nav-btn active" data-tab="users-tab"><i class="fa-solid fa-users"></i> Users & Subscriptions</button>
-          <button class="admin-nav-btn" data-tab="addons-tab"><i class="fa-solid fa-puzzle-piece"></i> Manage Addons</button>
-          <button class="admin-nav-btn admin-copy-btn" id="btn-copy-callback"><i class="fa-solid fa-copy"></i> Copy Callback Link</button>
-        </div>
+      <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 60px; margin-bottom: 40px; text-align: center;">
+        <span style="font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #71717a; display: block; margin-bottom: 12px;">ABOUT THIS PLATFORM</span>
+        <h2 style="font-size: clamp(2rem, 4vw, 2.6rem); font-weight: 800; color: #ffffff; margin-bottom: 18px; letter-spacing: -0.025em;">
+          Why this page?
+        </h2>
+        <p style="color: #a1a1aa; font-size: 16px; line-height: 1.8; max-width: 750px; margin: 0 auto;">
+          We built this central website so our community has one clean home for everything. Instead of juggling scattered Discord links, announcements, or separate accounts, you have a single place where our apps, events, and community connect together.
+        </p>
+      </div>
+
+      <!-- Narrative Detailed Blocks -->
+      <div style="display: flex; flex-direction: column; gap: 32px; text-align: center;">
         
-        <div class="admin-content">
-          <!-- Users Tab -->
-          <div class="admin-tab-content active" id="users-tab">
-            <div class="admin-card">
-              <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">
-                <h3 style="background: none; -webkit-text-fill-color: initial; color: #fff;">Registered Users</h3>
-                <span class="admin-badge" id="user-count" style="background: rgba(255, 255, 255, 0.1); color: var(--accent); padding: 4px 12px; border-radius: 100px; font-size: 13px; font-weight: 700;">0 Users</span>
-              </div>
-              <div class="table-responsive">
-                <table class="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Email</th>
-                      <th>Role</th>
-                      <th>Max Devices</th>
-                      <th>Subscription Expiry</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="users-table-body">
-                    <!-- Populated dynamically -->
-                  </tbody>
-                </table>
-              </div>
+        <!-- Block 1: Events & Giveaways -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 32px 36px; display: flex; flex-direction: column; align-items: center;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 16px;">
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px;">
+              <i class="fa-solid fa-trophy"></i>
             </div>
+            <h3 style="font-size: 19px; font-weight: 700; color: #ffffff; margin: 0;">Tournaments, Game Nights & Giveaways</h3>
           </div>
-          
-          <!-- Addons Tab -->
-          <div class="admin-tab-content" id="addons-tab">
-            <div class="admin-grid-layout" style="display: grid; grid-template-columns: 1.2fr 1.8fr; gap: 30px;">
-              <!-- Add Addon Form -->
-              <div class="admin-card">
-                <h3 style="background: none; -webkit-text-fill-color: initial; color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">Add MEEM Addon</h3>
-                <form id="add-addon-form">
-                  <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="addon-manifest-url" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Manifest JSON URL</label>
-                    <div style="display: flex; gap: 10px;">
-                      <input type="url" id="addon-manifest-url" class="form-control" placeholder="https://addon-domain/manifest.json" required style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
-                      <button type="button" class="btn btn-secondary" id="btn-fetch-addon" style="padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;">Fetch</button>
-                    </div>
-                  </div>
-                  
-                  <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="addon-name" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Addon Name</label>
-                    <input type="text" id="addon-name" class="form-control" placeholder="Fetched automatically or type here" required style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
-                  </div>
-                  
-                  <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="addon-description" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Description</label>
-                    <textarea id="addon-description" class="form-control" placeholder="Fetched automatically or type here" rows="3" style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
-                  </div>
-                  
-                  <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="addon-logo-url" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Logo / Icon URL</label>
-                    <input type="url" id="addon-logo-url" class="form-control" placeholder="Fetched automatically or type image URL" style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
-                  </div>
-                  
-                  <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; border-radius: 12px;">Add Addon</button>
-                </form>
-              </div>
-              
-              <!-- Addons List -->
-              <div class="admin-card">
-                <h3 style="background: none; -webkit-text-fill-color: initial; color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px;">Active Addons</h3>
-                <div class="admin-addons-list" id="admin-addons-list" style="display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 5px;">
-                  <!-- Populated dynamically -->
-                </div>
-              </div>
-            </div>
-          </div>
+          <p style="font-size: 15px; color: #a1a1aa; line-height: 1.8; margin-bottom: 14px; max-width: 760px;">
+            Whenever we host an event in the community — whether it's a Minecraft server tournament, a FiveM roleplay competition, or a casual weekend game night — everything is coordinated right here.
+          </p>
+          <p style="font-size: 15px; color: #a1a1aa; line-height: 1.8; margin: 0; max-width: 760px;">
+            Having your account connected makes it simple to register for competitions, check event schedules, and join community giveaways for free MEEM App VIP subscriptions, custom discord roles, and exclusive discounts.
+          </p>
         </div>
-      </div>
-    </section>
 
-    <!-- Auth Modal -->
-    <div class="auth-overlay" id="auth-modal" style="display: none;">
-      <div class="auth-card">
-        <button class="auth-close-btn" id="auth-close-btn"><i class="fa-solid fa-times"></i></button>
-        <div class="auth-brand">
-          <img src="imgs/appicon.png" alt="MEEM Logo" class="auth-logo-img" style="width: 60px; height: 60px; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);">
-          <h2 class="auth-title" id="auth-modal-title">Welcome to MEEM</h2>
-          <p class="auth-subtitle" id="auth-modal-subtitle">Sign in to sync your library, manage your private vault, and explore addons.</p>
+        <!-- Block 2: Unified Account & Sync -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 32px 36px; display: flex; flex-direction: column; align-items: center;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 16px;">
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px;">
+              <i class="fa-solid fa-layer-group"></i>
+            </div>
+            <h3 style="font-size: 19px; font-weight: 700; color: #ffffff; margin: 0;">One Account for Your Community & App</h3>
+          </div>
+          <p style="font-size: 15px; color: #a1a1aa; line-height: 1.8; margin-bottom: 14px; max-width: 760px;">
+            You don't need separate logins for each thing. Your account here connects your community standing with your MEEM App setup.
+          </p>
+          <p style="font-size: 15px; color: #a1a1aa; line-height: 1.8; margin: 0; max-width: 760px;">
+            You can check your status in the community, see your linked permissions, and directly view your synchronized items like "My List" from the MEEM App so your favorite media is always accessible.
+          </p>
         </div>
-        <div class="auth-tabs" id="auth-tabs">
-          <button class="auth-tab active" data-mode="login">Sign In</button>
-          <button class="auth-tab" data-mode="register">Create Account</button>
+
+        <!-- Block 3: Staff & Management -->
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 32px 36px; display: flex; flex-direction: column; align-items: center;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 16px;">
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px;">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h3 style="font-size: 19px; font-weight: 700; color: #ffffff; margin: 0;">Organized Tools for Staff & Moderators</h3>
+          </div>
+          <p style="font-size: 15px; color: #a1a1aa; line-height: 1.8; margin-bottom: 14px; max-width: 760px;">
+            Behind the scenes, our staff and moderators use this hub to manage registrations, organize tournament brackets, distribute giveaway rewards, and keep rules clear.
+          </p>
+          <p style="font-size: 15px; color: #a1a1aa; line-height: 1.8; margin: 0; max-width: 760px;">
+            Having clean tools helps us run things smoothly and focus on what matters most: creating a fun, welcoming, and active community for everyone.
+          </p>
         </div>
-        <form id="auth-form">
-          <div class="auth-field" id="auth-username-field" style="display: none;">
-            <label class="auth-label" for="auth-username">Username</label>
-            <div class="auth-input-wrap">
-              <i class="fa-regular fa-user"></i>
-              <input type="text" id="auth-username" class="auth-input" placeholder="Your username">
-            </div>
-          </div>
-          <div class="auth-field">
-            <label class="auth-label" for="auth-email">Email</label>
-            <div class="auth-input-wrap">
-              <i class="fa-regular fa-envelope"></i>
-              <input type="email" id="auth-email" class="auth-input" placeholder="you@example.com" required>
-            </div>
-          </div>
-          <div class="auth-field">
-            <label class="auth-label" for="auth-password">Password</label>
-            <div class="auth-input-wrap">
-              <i class="fa-solid fa-lock"></i>
-              <input type="password" id="auth-password" class="auth-input" placeholder="••••••••" required>
-            </div>
-          </div>
-          <button type="submit" class="auth-submit" id="auth-submit-btn">Sign In</button>
-        </form>
-        <form id="auth-otp-form" style="display: none;">
-          <div class="auth-field">
-            <label class="auth-label" for="auth-otp-code">Verification Code</label>
-            <div class="auth-input-wrap">
-              <i class="fa-solid fa-key"></i>
-              <input type="text" id="auth-otp-code" class="auth-input" placeholder="6-digit code" required>
-            </div>
-            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">Enter the code we sent to your email.</p>
-          </div>
-          <button type="submit" class="auth-submit" id="auth-otp-submit-btn">Verify & Login</button>
-        </form>
-        <div style="margin-top: 15px; border-top: 1px solid var(--glass-border); padding-top: 15px; display: flex; gap: 10px;">
-          <button id="oauth-google" class="oauth-btn oauth-google"><i class="fa-brands fa-google"></i> Google</button>
-          <button id="oauth-discord" class="oauth-btn oauth-discord"><i class="fa-brands fa-discord"></i> Discord</button>
-        </div>
-        <button type="button" id="btn-auth-back" class="btn-auth-back">Back</button>
-        <div class="auth-msg" id="auth-msg"></div>
+
       </div>
+
     </div>
-
-    <!-- Edit User Modal (Admin only) -->
-    <div class="auth-overlay" id="edit-user-modal" style="display: none;">
-      <div class="auth-card" style="max-width: 500px;">
-        <button class="auth-close-btn" id="edit-user-close-btn"><i class="fa-solid fa-times"></i></button>
-        <div class="auth-brand" style="margin-bottom: 20px;">
-          <h2 class="auth-title">Edit User Account</h2>
-          <p class="auth-subtitle" id="edit-user-email" style="color: var(--accent); font-weight: 600; margin-top: 5px;"></p>
-        </div>
-        <form id="edit-user-form">
-          <input type="hidden" id="edit-user-id">
-          
-          <div class="form-group" style="margin-bottom: 15px;">
-            <label for="edit-user-role" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Role</label>
-            <select id="edit-user-role" class="form-control" style="width: 100%; background: #15151c; border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          
-          <div class="form-group" style="margin-bottom: 15px;">
-            <label for="edit-user-max-devices" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Max Active Devices</label>
-            <input type="number" id="edit-user-max-devices" class="form-control" min="1" max="9999" required style="width: 100%; background: #15151c; border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
-          </div>
-          
-          <div class="form-group" style="margin-bottom: 20px;">
-            <label for="edit-user-expiry" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Subscription Expires At</label>
-            <input type="datetime-local" id="edit-user-expiry" class="form-control" required style="width: 100%; background: #15151c; border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
-            <div class="quick-date-buttons" style="display: flex; gap: 10px; margin-top: 10px;">
-              <button type="button" class="btn-quick-date" data-days="30" style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: var(--transition-smooth);">+30 Days</button>
-              <button type="button" class="btn-quick-date" data-days="365" style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: #fff; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: var(--transition-smooth);">+1 Year</button>
-              <button type="button" class="btn-quick-date" data-days="0" style="flex: 1; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; padding: 8px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: var(--transition-smooth);">Expire Now</button>
-            </div>
-          </div>
-          
-          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; border-radius: 12px;">Save Changes</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Ban Details / Device Selection Modal -->
-    <div class="auth-overlay" id="ban-modal" style="display: none;">
-      <div class="auth-card" style="max-width: 500px;">
-        <button class="auth-close-btn" id="ban-close-btn"><i class="fa-solid fa-times"></i></button>
-        <div class="auth-brand" style="margin-bottom: 20px;">
-          <h2 class="auth-title"><i class="fa-solid fa-ban" style="color: #ef4444; margin-right: 10px;"></i> Ban User & Devices</h2>
-          <p class="auth-subtitle">Choose which devices of <span id="ban-user-email" style="color: var(--accent); font-weight: bold;"></span> you want to add to the global blacklist.</p>
-        </div>
-        
-        <form id="ban-devices-form">
-          <input type="hidden" id="ban-target-user-id">
-          
-          <div class="form-group" style="margin-bottom: 20px;">
-            <label style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600;">Select Devices to Blacklist:</label>
-            <div id="ban-devices-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--glass-border);">
-              <!-- Populated dynamically -->
-            </div>
-          </div>
-          
-          <div class="form-group" style="margin-bottom: 20px;">
-            <label for="ban-reason" style="display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Reason for Ban</label>
-            <input type="text" id="ban-reason" class="form-control" placeholder="e.g. Sharing account, abusive behavior" style="width: 100%; background: #15151c; border: 1px solid var(--glass-border); color: #fff; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
-          </div>
-          
-          <div style="display: flex; gap: 15px;">
-            <button type="button" class="btn btn-secondary" id="btn-ban-select-all" style="flex: 1; justify-content: center; font-size: 13px; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 8px; cursor: pointer;">Select All</button>
-            <button type="button" class="btn btn-secondary" id="btn-ban-select-none" style="flex: 1; justify-content: center; font-size: 13px; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 8px; cursor: pointer;">Deselect All</button>
-          </div>
-          
-          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; border-radius: 12px; background: #ef4444; border-color: #ef4444; margin-top: 20px; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2); color: #fff;">Confirm Ban & Blacklist</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Toast Container -->
-    <div id="toast-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+  </section>
 
   <!-- Footer -->
-  <footer>
+  <footer style="margin-top: 80px; padding: 60px 0 30px; border-top: 1px solid rgba(255,255,255,0.08); text-align: center;">
     <div class="container">
-      <img src="imgs/signature_w.png" alt="Amro Motawa Signature" class="footer-signature">
-      <p class="copyright">Copyright © 2026 MEEM. Built with passion by Amro Motawa. All rights reserved.</p>
+      <img src="imgs/signature_w.png" alt="Amro Motawa Signature" class="footer-signature" style="height: 95px; opacity: 0.95; margin-bottom: 20px;">
+      <p class="copyright" style="font-size: 13px; color: var(--text-muted);">Built with passion by Amro Motawa. All rights reserved.</p>
       <div style="margin-top: 15px; display: flex; justify-content: center; gap: 20px; font-size: 13px; flex-wrap: wrap;">
-        <a href="terms/" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;">Terms of Service</a>
+        <a href="terms/" style="color: var(--text-secondary); text-decoration: none;">Terms of Service</a>
         <span style="color: rgba(255,255,255,0.2);">•</span>
-        <a href="privacy/" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;">Privacy Policy</a>
+        <a href="privacy/" style="color: var(--text-secondary); text-decoration: none;">Privacy Policy</a>
         <span style="color: rgba(255,255,255,0.2);">•</span>
-        <a href="refund/" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;">Refund Policy</a>
+        <a href="refund/" style="color: var(--text-secondary); text-decoration: none;">Refund Policy</a>
       </div>
     </div>
   </footer>
 
-  <!-- Scripts -->
-  <script src="script.js"></script>
 </body>
 </html>
+
+
+
