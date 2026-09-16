@@ -342,6 +342,7 @@
           const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2am5rZ2RyaHl4aWxuZGVyamR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTM2ODEsImV4cCI6MjA5NDg4OTY4MX0.Rb1OLJGXDToYZz-8h_gy2UNx_ou0P6BwGXc1ExFWSCU';
           fetch(`${SUPABASE_URL}/rest/v1/rpc/complete_mobile_auth_relay`, {
             method: 'POST',
+            keepalive: true,
             headers: {
               'Content-Type': 'application/json',
               'apikey': SUPABASE_KEY,
@@ -385,7 +386,7 @@
         }
       } catch (_) {}
 
-      manualLink.href = deepLinkMeem;
+      manualLink.href = isAndroid ? intentUri : deepLinkMeem;
       manualLink.addEventListener('click', (e) => {
         try {
           if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -395,15 +396,16 @@
         if (isAndroid) {
           setTimeout(() => {
             try { window.location.href = intentUri; } catch (_) {}
-          }, 400);
+          }, 300);
         }
       });
 
       if (isAndroid) {
+        // Use intentUri on Android as Chrome treats intent:// as the standard package launch protocol
         try {
-          window.location.href = deepLinkMeem;
+          window.location.href = intentUri;
         } catch (_) {
-          try { window.location.href = intentUri; } catch (_) {}
+          try { window.location.href = deepLinkMeem; } catch (_) {}
         }
       } else {
         try {
