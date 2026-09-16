@@ -1,7 +1,3 @@
-window.addEventListener('error', (event) => {
-  alert('Page JS Error: ' + event.message + '\nFile: ' + event.filename + '\nLine: ' + event.lineno);
-});
-
 document.addEventListener('DOMContentLoaded', () => {
   // --- Supabase Client Initialization ---
   const SUPABASE_URL = "https://vvjnkgdrhyxilnderjdy.supabase.co";
@@ -9,16 +5,18 @@ document.addEventListener('DOMContentLoaded', () => {
   
   let supabaseClient = null;
   try {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storageKey: "supabase.auth.token"
-      }
-    });
+    if (window.supabase) {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          storageKey: "supabase.auth.token"
+        }
+      });
+    }
   } catch (e) {
-    console.error("Failed to initialize Supabase client:", e);
+    console.warn("Failed to initialize Supabase client:", e);
   }
 
   // --- State Variables ---
@@ -49,28 +47,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  window.addEventListener('scroll', handleScrollAnimation);
-  // Initial check on load
-  setTimeout(handleScrollAnimation, 100);
+  if (featureCards.length > 0) {
+    window.addEventListener('scroll', handleScrollAnimation);
+    setTimeout(handleScrollAnimation, 100);
+  }
 
   // --- Smart Latest Release Fetcher ---
   const repoOwner = 'amromotaw3';
-  const repoName = 'MediaVault-Landing';
+  const repoName = 'MEEM';
 
   async function updateDownloadLinks() {
     try {
       const response = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/releases/latest`);
+      if (!response.ok) return;
       const data = await response.json();
 
-      if (data.assets && data.assets.length > 0) {
+      if (data && data.assets && data.assets.length > 0) {
         const winAsset = data.assets.find(asset => asset.name.endsWith('.exe'));
         const androidAsset = data.assets.find(asset => asset.name.endsWith('.apk'));
 
-        if (winAsset) {
-          document.getElementById('download-win').href = winAsset.browser_download_url;
+        const winBtn = document.getElementById('download-win');
+        if (winBtn && winAsset) {
+          winBtn.href = winAsset.browser_download_url;
         }
-        if (androidAsset) {
-          document.getElementById('download-android').href = androidAsset.browser_download_url;
+        const androidBtn = document.getElementById('download-android');
+        if (androidBtn && androidAsset) {
+          androidBtn.href = androidAsset.browser_download_url;
         }
         
         const versionBadge = document.getElementById('app-version-badge');
@@ -79,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     } catch (error) {
-      console.error('Error fetching latest release:', error);
+      console.warn('Error fetching latest release:', error);
     }
   }
 
@@ -238,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let authMode = 'login'; // 'login' or 'register'
 
   function getAuthRedirectUrl() {
-    return window.location.href.split('#')[0].split('?')[0];
+    return window.location.origin + '/auth/callback/';
   }
 
   // Handle Discord OAuth Login
@@ -285,23 +287,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-
-
   // Close Modal
   if (authCloseBtn) authCloseBtn.addEventListener('click', closeAuthModal);
-  authModal.addEventListener('click', (e) => {
-    if (e.target === authModal) closeAuthModal();
-  });
+  if (authModal) {
+    authModal.addEventListener('click', (e) => {
+      if (e.target === authModal) closeAuthModal();
+    });
+  }
+
   // Open Modal - Event Delegation
   document.addEventListener('click', (e) => {
-    try {
-      const target = e.target.closest('#btn-login-nav');
-      if (target) {
-        e.preventDefault();
-        openAuthModal();
-      }
-    } catch (err) {
-      alert("Click Handler Error: " + err.message);
+    const target = e.target.closest('#btn-login-nav, #btn-open-auth, .btn-open-auth');
+    if (target) {
+      e.preventDefault();
+      openAuthModal();
     }
   });
 
@@ -311,21 +310,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openAuthModal() {
-    try {
-      if (!authModal) {
-        alert("Error: authModal element (id 'auth-modal') was not found in the DOM!");
-        return;
-      }
-      authModal.style.display = 'flex';
-      document.body.classList.add('auth-modal-open');
-      document.body.style.overflow = 'hidden';
-      setAuthMode('login');
-    } catch (err) {
-      alert("openAuthModal Error: " + err.message);
+    if (!authModal) {
+      const isPlayerPath = window.location.pathname.includes('/player');
+      window.location.href = (isPlayerPath ? './' : '/player/') + '#auth';
+      return;
     }
+    authModal.style.display = 'flex';
+    document.body.classList.add('auth-modal-open');
+    document.body.style.overflow = 'hidden';
+    setAuthMode('login');
   }
 
   function closeAuthModal() {
+    if (!authModal) return;
     authModal.style.display = 'none';
     document.body.classList.remove('auth-modal-open');
     document.body.style.overflow = '';
@@ -333,22 +330,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function clearAuthForm() {
-    authForm.reset();
-    authOtpForm.reset();
-    authForm.style.display = 'block';
-    authOtpForm.style.display = 'none';
-    authTabs.style.display = 'flex';
-    authMsg.className = 'auth-msg';
-    authMsg.style.display = 'none';
-    authMsg.innerText = '';
+    if (authForm) {
+      authForm.reset();
+      authForm.style.display = 'block';
+    }
+    if (authOtpForm) {
+      authOtpForm.reset();
+      authOtpForm.style.display = 'none';
+    }
+    if (authTabs) authTabs.style.display = 'flex';
+    if (authMsg) {
+      authMsg.className = 'auth-msg';
+      authMsg.style.display = 'none';
+      authMsg.innerText = '';
+    }
+  }
+
+  // Check URL hash for direct auth opening
+  if (window.location.hash === '#auth') {
+    setTimeout(openAuthModal, 100);
   }
 
   // Toggle Login/Register Tabs
-  authTabs.querySelectorAll('.auth-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      setAuthMode(tab.dataset.mode);
+  if (authTabs) {
+    authTabs.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        setAuthMode(tab.dataset.mode);
+      });
     });
-  });
+  }
 
   function setAuthMode(mode) {
     try {
@@ -372,91 +382,102 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (authMsg) authMsg.style.display = 'none';
     } catch (err) {
-      alert("setAuthMode Error: " + err.message);
+      console.warn("setAuthMode Error:", err);
     }
   }
 
   // Handle Login and Signup Forms
-  authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!supabaseClient) {
-      showAuthMsg('Supabase client not loaded.', 'error');
-      return;
-    }
+  if (authForm) {
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!supabaseClient) {
+        showAuthMsg('Supabase client not loaded.', 'error');
+        return;
+      }
 
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value;
-    const username = document.getElementById('auth-username').value.trim();
+      const emailEl = document.getElementById('auth-email');
+      const passEl = document.getElementById('auth-password');
+      const userEl = document.getElementById('auth-username');
+      const email = emailEl ? emailEl.value.trim() : '';
+      const password = passEl ? passEl.value : '';
+      const username = userEl ? userEl.value.trim() : '';
 
-    authMsg.style.display = 'none';
-    setSubmitLoading(true);
+      if (authMsg) authMsg.style.display = 'none';
+      setSubmitLoading(true);
 
-    try {
-      if (authMode === 'login') {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        
-        showAuthMsg('Successfully signed in. Syncing session...', 'success');
-        await syncAndInitialize(data.user);
-      } else {
-        const { data, error } = await supabaseClient.auth.signUp({
+      try {
+        if (authMode === 'login') {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          
+          showAuthMsg('Successfully signed in. Syncing session...', 'success');
+          await syncAndInitialize(data.user);
+        } else {
+          const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: { data: { username } }
+          });
+          if (error) throw error;
+
+          if (data.session) {
+            showAuthMsg('Account created successfully! Logging you in...', 'success');
+            await syncAndInitialize(data.user);
+          } else {
+            // OTP verification needed
+            showAuthMsg('Verification code sent! Check your email.', 'success');
+            authForm.style.display = 'none';
+            if (authTabs) authTabs.style.display = 'none';
+            if (authOtpForm) authOtpForm.style.display = 'block';
+          }
+        }
+      } catch (err) {
+        showAuthMsg(err.message || 'Authentication failed.', 'error');
+      } finally {
+        setSubmitLoading(false);
+      }
+    });
+  }
+
+  // Handle OTP Form Submission
+  if (authOtpForm) {
+    authOtpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const emailEl = document.getElementById('auth-email');
+      const tokenEl = document.getElementById('auth-otp-code');
+      const email = emailEl ? emailEl.value.trim() : '';
+      const token = tokenEl ? tokenEl.value.trim() : '';
+
+      if (authMsg) authMsg.style.display = 'none';
+      const otpSubmitBtn = document.getElementById('auth-otp-submit-btn');
+      if (otpSubmitBtn) otpSubmitBtn.disabled = true;
+
+      try {
+        const { data, error } = await supabaseClient.auth.verifyOtp({
           email,
-          password,
-          options: { data: { username } }
+          token,
+          type: 'signup'
         });
         if (error) throw error;
 
-        if (data.session) {
-          showAuthMsg('Account created successfully! Logging you in...', 'success');
-          await syncAndInitialize(data.user);
-        } else {
-          // OTP verification needed
-          showAuthMsg('Verification code sent! Check your email.', 'success');
-          authForm.style.display = 'none';
-          authTabs.style.display = 'none';
-          authOtpForm.style.display = 'block';
-        }
+        showAuthMsg('Email verified! Initializing session...', 'success');
+        await syncAndInitialize(data.user);
+      } catch (err) {
+        showAuthMsg(err.message || 'OTP verification failed.', 'error');
+        if (otpSubmitBtn) otpSubmitBtn.disabled = false;
       }
-    } catch (err) {
-      showAuthMsg(err.message || 'Authentication failed.', 'error');
-    } finally {
-      setSubmitLoading(false);
-    }
-  });
-
-  // Handle OTP Form Submission
-  authOtpForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('auth-email').value.trim();
-    const token = document.getElementById('auth-otp-code').value.trim();
-
-    authMsg.style.display = 'none';
-    const otpSubmitBtn = document.getElementById('auth-otp-submit-btn');
-    otpSubmitBtn.disabled = true;
-
-    try {
-      const { data, error } = await supabaseClient.auth.verifyOtp({
-        email,
-        token,
-        type: 'signup'
-      });
-      if (error) throw error;
-
-      showAuthMsg('Email verified! Initializing session...', 'success');
-      await syncAndInitialize(data.user);
-    } catch (err) {
-      showAuthMsg(err.message || 'OTP verification failed.', 'error');
-      otpSubmitBtn.disabled = false;
-    }
-  });
+    });
+  }
 
   function showAuthMsg(message, type = 'success') {
+    if (!authMsg) return;
     authMsg.innerText = message;
     authMsg.className = `auth-msg visible ${type}`;
     authMsg.style.display = 'block';
   }
 
   function setSubmitLoading(loading) {
+    if (!authSubmitBtn) return;
     authSubmitBtn.disabled = loading;
     if (loading) {
       authSubmitBtn.innerHTML = '<span class="auth-spinner"></span> Please wait...';

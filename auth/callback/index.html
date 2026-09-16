@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -299,7 +299,8 @@
       if (isWeb) {
         statusText.innerText = 'Redirecting to MEEM...';
         manualLinkText.innerText = 'Return to MEEM';
-        manualLink.href = '../../player/';
+        const playerUrl = window.location.origin + '/player/';
+        manualLink.href = playerUrl;
         
         if (window.opener && !window.opener.closed) {
           try {
@@ -312,11 +313,11 @@
         }
 
         setTimeout(() => {
-          window.location.href = '../../player/';
+          window.location.href = playerUrl;
         }, 800);
 
         copyTokenBtn.addEventListener('click', () => {
-          window.location.href = '../../player/';
+          window.location.href = playerUrl;
         });
         return;
       }
@@ -326,13 +327,13 @@
         try {
           const SUPABASE_URL = 'https://vvjnkgdrhyxilnderjdy.supabase.co';
           const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2am5rZ2RyaHl4aWxuZGVyamR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTM2ODEsImV4cCI6MjA5NDg4OTY4MX0.Rb1OLJGXDToYZz-8h_gy2UNx_ou0P6BwGXc1ExFWSCU';
-          fetch(${SUPABASE_URL}/rest/v1/rpc/complete_mobile_auth_relay, {
+          fetch(`${SUPABASE_URL}/rest/v1/rpc/complete_mobile_auth_relay`, {
             method: 'POST',
             keepalive: true,
             headers: {
               'Content-Type': 'application/json',
               'apikey': SUPABASE_KEY,
-              'Authorization': Bearer 
+              'Authorization': `Bearer ${SUPABASE_KEY}`
             },
             body: JSON.stringify({
               p_relay_id: relayId,
