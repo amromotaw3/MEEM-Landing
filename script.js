@@ -536,15 +536,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateNavbarUI() {
     const navAuthContainer = document.getElementById('nav-auth-container');
-    const navMylistLink = document.getElementById('nav-mylist-link');
-    const navAddonsLink = document.getElementById('nav-addons-link');
-    const navAdminLink = document.getElementById('nav-admin-link');
+    if (!navAuthContainer) return;
+
+    const navMylist = document.getElementById('nav-mylist') || document.getElementById('nav-mylist-link');
+    const navAddons = document.getElementById('nav-addons') || document.getElementById('nav-addons-link');
+    const navAdmin = document.getElementById('nav-admin') || document.getElementById('nav-admin-link');
+
+    const isPlayerPage = window.location.pathname.includes('/player');
+    const isCommunityPage = window.location.pathname.includes('/community');
+    const basePath = (isPlayerPage || isCommunityPage) ? '../' : './';
 
     if (currentUser) {
       const email = currentUser.email;
       const isAdmin = currentUserProfile?.role === 'admin';
       
-      // Use the application's default profile name and avatar if available!
       const defaultProfile = currentUserProfiles && currentUserProfiles.length > 0 ? currentUserProfiles[0] : null;
       
       let userName = defaultProfile ? defaultProfile.name : (currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.user_metadata?.username || email.split('@')[0]);
@@ -554,7 +559,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (defaultProfile.avatar.startsWith('http')) {
           avatarUrl = defaultProfile.avatar;
         } else {
-          // Resolve relative path to github raw content
           avatarUrl = 'https://raw.githubusercontent.com/amromotaw3/MediaVault/main/src/renderer/' + defaultProfile.avatar;
         }
       } else {
@@ -573,12 +577,12 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="dropdown-email">${email}</span>
             </div>
             <div class="dropdown-divider"></div>
-            <a href="#hero" class="dropdown-item" id="dropdown-home-link"><i class="fa-solid fa-house"></i> Home</a>
-            <a href="#mylist-section" class="dropdown-item" id="dropdown-mylist-link"><i class="fa-solid fa-star"></i> My List</a>
-            <a href="#addons-section" class="dropdown-item" id="dropdown-addons-link"><i class="fa-solid fa-puzzle-piece"></i> Addons</a>
-            <a href="#admin-panel-section" class="dropdown-item" id="dropdown-admin-link" style="display: none;"><i class="fa-solid fa-user-shield"></i> Admin Panel</a>
+            <a href="${isPlayerPage ? '#hero' : basePath + 'player/'}" class="dropdown-item" id="dropdown-home-link"><i class="fa-solid fa-play"></i> MEEM App</a>
+            <a href="${isPlayerPage ? '#mylist-section' : basePath + 'player/#mylist-section'}" class="dropdown-item" id="dropdown-mylist-link"><i class="fa-solid fa-bookmark"></i> My List</a>
+            <a href="${isPlayerPage ? '#addons-section' : basePath + 'player/#addons-section'}" class="dropdown-item" id="dropdown-addons-link"><i class="fa-solid fa-puzzle-piece"></i> Addons</a>
+            <a href="${isPlayerPage ? '#admin-panel-section' : basePath + 'player/#admin-panel-section'}" class="dropdown-item" id="dropdown-admin-link" style="${isAdmin ? 'display: flex;' : 'display: none;'}"><i class="fa-solid fa-shield-halved"></i> Admin Panel</a>
             <div class="dropdown-divider"></div>
-            <button class="dropdown-item logout-btn" id="btn-logout-dropdown"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+            <button class="dropdown-item logout-btn" id="btn-logout-dropdown"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</button>
           </div>
         </div>
       `;
@@ -587,75 +591,79 @@ document.addEventListener('DOMContentLoaded', () => {
       const badge = document.getElementById('nav-profile-badge');
       const dropdown = document.getElementById('nav-dropdown');
       
-      badge.addEventListener('click', (e) => {
-        e.stopPropagation();
-        badge.classList.toggle('active');
-        dropdown.classList.toggle('active');
-      });
+      if (badge && dropdown) {
+        badge.addEventListener('click', (e) => {
+          e.stopPropagation();
+          badge.classList.toggle('active');
+          dropdown.classList.toggle('active');
+        });
+      }
 
       // Handle logout click
-      document.getElementById('btn-logout-dropdown').addEventListener('click', (e) => {
-        e.stopPropagation();
-        handleLogout();
-      });
-
-      // Handle dropdown link clicks
-      document.getElementById('dropdown-home-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        badge.classList.remove('active');
-        dropdown.classList.remove('active');
-        switchView('home');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-
-      const dropMylist = document.getElementById('dropdown-mylist-link');
-      const dropAddons = document.getElementById('dropdown-addons-link');
-      const dropAdmin = document.getElementById('dropdown-admin-link');
-
-      // Show/hide navigation and dropdown links
-      if (navMylistLink) navMylistLink.style.display = 'inline-block';
-      navAddonsLink.style.display = 'inline-block';
-      
-      if (dropMylist) {
-        dropMylist.addEventListener('click', (e) => {
-          e.preventDefault();
+      const btnLogoutDropdown = document.getElementById('btn-logout-dropdown');
+      if (btnLogoutDropdown) {
+        btnLogoutDropdown.addEventListener('click', (e) => {
           e.stopPropagation();
-          badge.classList.remove('active');
-          dropdown.classList.remove('active');
-          switchView('mylist');
+          handleLogout();
         });
       }
 
-      dropAddons.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        badge.classList.remove('active');
-        dropdown.classList.remove('active');
-        switchView('addons');
-      });
+      // Handle in-page dropdown link clicks on player page
+      if (isPlayerPage) {
+        const dropHome = document.getElementById('dropdown-home-link');
+        const dropMylist = document.getElementById('dropdown-mylist-link');
+        const dropAddons = document.getElementById('dropdown-addons-link');
+        const dropAdmin = document.getElementById('dropdown-admin-link');
 
-      if (isAdmin) {
-        navAdminLink.style.display = 'inline-block';
-        dropAdmin.style.display = 'flex';
-        
-        dropAdmin.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          badge.classList.remove('active');
-          dropdown.classList.remove('active');
-          switchView('admin');
-        });
-      } else {
-        navAdminLink.style.display = 'none';
-        dropAdmin.style.display = 'none';
+        if (dropHome) {
+          dropHome.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (badge) badge.classList.remove('active');
+            if (dropdown) dropdown.classList.remove('active');
+            switchView('home');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        }
+        if (dropMylist) {
+          dropMylist.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (badge) badge.classList.remove('active');
+            if (dropdown) dropdown.classList.remove('active');
+            switchView('mylist');
+          });
+        }
+        if (dropAddons) {
+          dropAddons.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (badge) badge.classList.remove('active');
+            if (dropdown) dropdown.classList.remove('active');
+            switchView('addons');
+          });
+        }
+        if (dropAdmin && isAdmin) {
+          dropAdmin.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (badge) badge.classList.remove('active');
+            if (dropdown) dropdown.classList.remove('active');
+            switchView('admin');
+          });
+        }
       }
+
+      // Show/hide navigation bar items
+      if (navMylist) navMylist.style.display = 'inline-block';
+      if (navAddons) navAddons.style.display = 'inline-block';
+      if (navAdmin) navAdmin.style.display = isAdmin ? 'inline-block' : 'none';
     } else {
-      navAuthContainer.innerHTML = `<button class="btn-nav-primary" id="btn-login-nav">Sign In</button>`;
+      navAuthContainer.innerHTML = `<button class="btn-nav-primary" id="btn-login-nav"><i class="fa-regular fa-user"></i> Sign In</button>`;
 
-      if (navMylistLink) navMylistLink.style.display = 'inline-block';
-      navAddonsLink.style.display = 'none';
-      navAdminLink.style.display = 'none';
+      if (navMylist) navMylist.style.display = 'none';
+      if (navAddons) navAddons.style.display = 'none';
+      if (navAdmin) navAdmin.style.display = 'none';
     }
   }
 
