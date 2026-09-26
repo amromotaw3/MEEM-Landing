@@ -293,8 +293,8 @@
         return;
       }
 
-      // Check if from web browser
-      const isWeb = source.toLowerCase() === 'web' || (!relayId && !/electron|meem_app/i.test(navigator.userAgent || ''));
+      // Check if explicitly requested from web browser
+      const isWeb = source.toLowerCase() === 'web';
 
       if (isWeb) {
         statusText.innerText = 'Redirecting to MEEM...';
@@ -379,6 +379,9 @@
           try { window.location.href = deepLinkMeem; } catch (_) {}
         }
       } else {
+        try {
+          fetch('http://localhost:3000/' + (deepLinkFragment.startsWith('?') || deepLinkFragment.startsWith('#') ? deepLinkFragment : '#' + deepLinkFragment), { mode: 'no-cors' }).catch(() => {});
+        } catch (_) {}
         try {
           window.location.replace(deepLinkMeem);
         } catch (_) {}
