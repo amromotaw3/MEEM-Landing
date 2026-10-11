@@ -507,6 +507,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentUserProfiles.length > 0) {
           activeProfileId = currentUserProfiles[0].id;
         }
+
+        // Check subscription expiry notification
+        const subExpiry = currentUserProfile?.subscription_expires_at || currentUserProfile?.subscription_end_date;
+        if (subExpiry) {
+          const now = new Date();
+          const expDate = new Date(subExpiry);
+          if (expDate <= now) {
+            setTimeout(() => {
+              showToast('⚠️ لقد انتهى اشتراكك في MEEM VIP. يرجى تجديد الاشتراك للمتابعة.', 'error');
+            }, 1200);
+          } else {
+            const diffDays = Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+            const diffHours = Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 60 * 60));
+            if (diffDays <= 3) {
+              setTimeout(() => {
+                const alertMsg = diffHours <= 24 
+                  ? `⚠️ تنبيه: اشتراك MEEM VIP الخاص بك سينتهي خلال أقل من ${diffHours} ساعة!` 
+                  : `⚠️ تنبيه: اشتراك MEEM VIP الخاص بك سينتهي خلال ${diffDays} أيام!`;
+                showToast(alertMsg, 'error');
+              }, 1200);
+            }
+          }
+        }
       }
     } catch (err) {
       console.warn('Sync session background error (proceeding with user session):', err);
