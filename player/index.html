@@ -53,7 +53,7 @@
     <!-- Hero Section -->
     <section class="hero" id="hero">
       <div class="container hero-container">
-        <div class="app-badge">
+        <div class="app-badge" id="app-version-badge">
           <img src="../imgs/appicon.png" alt="MEEM Logo" class="badge-icon">
           <span>MODULAR MEDIA UTILITY</span>
         </div>
@@ -64,10 +64,10 @@
           MEEM is a versatile media player utility built for Windows and Android. You choose how it works by adding the extensions and sources you want.
         </p>
         <div class="hero-cta">
-          <a href="https://github.com/amromotaw3/MEEM/releases" target="_blank" class="btn btn-primary">
+          <a href="https://github.com/amromotaw3/MEEM/releases" target="_blank" class="btn btn-primary" id="download-win">
             <i class="fa-brands fa-windows"></i> Download Windows
           </a>
-          <a href="https://github.com/amromotaw3/MEEM/releases" target="_blank" class="btn btn-secondary">
+          <a href="https://github.com/amromotaw3/MEEM/releases" target="_blank" class="btn btn-secondary" id="download-android">
             <i class="fa-brands fa-android"></i> Download Android
           </a>
           <a href="#pricing" class="btn btn-vip">
@@ -146,9 +146,11 @@
               <p style="font-size: 13px; color: #71717a; margin-bottom: 24px;">≈ 19.00 SAR / month</p>
               
               <ul style="list-style: none; padding: 0; margin: 0 0 30px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #d4d4d8;">
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Characters Collection Access</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Smart Auto-Play & Stream Options</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> YouTube Add-on Integration</li>
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Cloud Library & Addon Sync</li>
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Up to 3 Linked Devices</li>
-                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> High-Speed Metadata Cache</li>
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> VIP Community Role</li>
               </ul>
             </div>
@@ -170,6 +172,7 @@
               
               <ul style="list-style: none; padding: 0; margin: 0 0 30px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #d4d4d8;">
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Everything in Monthly</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Characters, Auto-Play & YouTube</li>
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Up to 5 Linked Devices</li>
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Extended 6-Month Activation</li>
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Priority Feature Access</li>
@@ -196,6 +199,7 @@
               
               <ul style="list-style: none; padding: 0; margin: 0 0 30px; text-align: left; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #d4d4d8;">
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Full VIP Cloud Access</li>
+                <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Characters, Auto-Play & YouTube</li>
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Up to 5 Linked Devices</li>
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Full 12 Months Support</li>
                 <li><i class="fa-solid fa-check" style="color: #22c55e; margin-right: 10px;"></i> Exclusive Discord VIP Perks</li>
@@ -430,10 +434,10 @@
           </div>
 
           <div class="auth-field">
-            <label class="auth-label" for="edit-user-devices">Max Linked Devices</label>
+            <label class="auth-label" for="edit-user-max-devices">Max Linked Devices</label>
             <div class="auth-input-wrap">
               <i class="fa-solid fa-desktop"></i>
-              <input type="number" id="edit-user-devices" class="auth-input" min="1" max="20" value="3" required>
+              <input type="number" id="edit-user-max-devices" class="auth-input" min="1" max="20" value="3" required>
             </div>
           </div>
 
